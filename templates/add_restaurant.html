@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Restaurant</title>
+</head>
+<body>
+    <h2>Tambah Restoran Baru</h2>
+
+    <!-- Menampilkan flash message jika ada -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form untuk menambahkan restoran -->
+    <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
+        <label>Name:</label>
+        <input type="text" name="name" required><br>
+
+        <label>Category:</label>
+        <input type="text" name="category" required><br>
+
+        <label>Rating (1-5):</label>
+        <input type="number" name="rating" step="0.1" min="1" max="5" required><br>
+
+        <label>Address:</label>
+        <input type="text" name="address" required><br>
+
+        <label>Latitude:</label>
+        <input type="number" name="latitude" step="any" required><br>
+
+        <label>Longitude:</label>
+        <input type="number" name="longitude" step="any" required><br>
+
+        <label>Price Range (e.g., Rp 10.000 - 50.000):</label>
+        <input type="text" name="price_range" required><br>
+
+        <label>Upload Restaurant Photo (optional):</label>
+        <input type="file" name="image"><br>
+
+        <button type="submit">Add Restaurant</button>
+    </form>
+
+    <p><a href="{{ url_for('index') }}">Back to Restaurant List</a></p>
+
+</body>
+</html>

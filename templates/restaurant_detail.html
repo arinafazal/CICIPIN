@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurant['name'] }}</title>
+</head>
+<body>
+    <h2>{{ restaurant['name'] }}</h2>
+    <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-detail-image">
+    <p>Category: {{ restaurant['category'] }}</p>
+    <p>Rating: {{ restaurant['rating'] }} ({{ restaurant['reviews'] }} reviews)</p>
+    <p>Address: {{ restaurant['address'] }}</p>
+    <p>Price Range: Rp {{ restaurant['price_range'] }}</p>
+
+    <h3>Reviews</h3>
+    {% for review in restaurant['reviews'] %}
+        <div class="review">
+            <p>Rating: {{ review['rating'] }} - {{ review['comment'] }}</p>
+            {% if review['image_url'] %}
+                <img src="{{ review['image_url'] }}" alt="Review Image">
+            {% endif %}
+        </div>
+    {% endfor %}
+    
+    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}">Add Review</a> |
+    {% if username == 'admin' %}
+        <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}">Edit</a> |
+        <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" onclick="return confirm('Yakin menghapus restoran ini?');">Delete</a> |
+    {% endif %}
+    <a href="{{ url_for('index') }}">Back to Restaurant List</a>
+</body>
+</html>

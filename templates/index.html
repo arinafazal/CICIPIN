@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Cicipin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Cicipin Logo">
+        </div>
+        <div class="user-menu">
+            <span>{{ username }}</span>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <!-- Flash Message for Notifications -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="popup {{ messages[0][0] }}" id="popupMessage">
+                <p id="popupText">{{ messages[0][1] }}</p>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <h2>Temukan Restoran Terbaik!</h2>
+        <form method="GET" class="search-form">
+            <!-- Kategori -->
+            <input type="text" name="category" 
+                   placeholder="Cari restoran, kategori, atau lokasi..." 
+                   value="{{ request.args.get('category', '') }}">
+            <button type="submit">Cari</button>
+        </form>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <form method="GET" class="filter-form">
+            <label for="min_rating">Min Rating:</label>
+            <input type="number" name="min_rating" min="1" max="5" step="0.1"
+                   placeholder="e.g., 4.0"> <!-- Tanpa nilai default -->
+
+            <label for="max_price">Max Price:</label>
+            <input type="number" name="max_price" 
+                   placeholder="e.g., 100"> <!-- Tanpa nilai default -->
+
+            <button type="submit">Filter</button>
+        </form>
+    </section>
+
+    <!-- Restaurant List Section -->
+    <section class="restaurant-list">
+        <h3>Restoran Pilihan</h3>
+        <div class="restaurant-cards">
+            {% for restaurant in restaurants %}
+                <div class="restaurant-card">
+                    <!-- Menampilkan gambar restoran -->
+                    {% if restaurant['image_url'] %}
+                        <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
+                    {% endif %}
+                    <div class="card-info">
+                        <h4>{{ restaurant['name'] }}</h4>
+                        <p>Rating: {{ restaurant['rating'] }} ({{ restaurant['reviews'] }} reviews)</p>
+                        <p>Location: {{ restaurant['address'] }}</p>
+                        <p>Price: Rp {{ restaurant.get('price_range', 'N/A') }}</p>
+                    </div>
+                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn">Buka</a>
+                    {% if username == 'admin' %}
+                        <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" class="btn">Edit</a>
+                        <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn" onclick="return confirm('Yakin menghapus restoran ini?');">Delete</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Link ke halaman Add Restaurant di bagian bawah -->
+    <section class="add-restaurant-link">
+        <a href="{{ url_for('add_restaurant') }}" class="btn">Tambah Restoran</a>
+    </section>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

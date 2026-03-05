@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Restaurant</title>
+</head>
+<body>
+    <h2>Edit Restaurant: {{ restaurant['name'] }}</h2>
+    
+    <!-- Menampilkan flash message jika ada -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" method="POST">
+        <label for="name">Restaurant Name:</label>
+        <input type="text" name="name" value="{{ restaurant['name'] }}" required><br>
+
+        <label for="category">Category:</label>
+        <input type="text" name="category" value="{{ restaurant['category'] }}" required><br>
+
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" name="rating" value="{{ restaurant['rating'] }}" step="0.1" min="1" max="5" required><br>
+
+        <label for="address">Address:</label>
+        <input type="text" name="address" value="{{ restaurant['address'] }}" required><br>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <a href="{{ url_for('index') }}">Back to Restaurant List</a>
+</body>
+</html>

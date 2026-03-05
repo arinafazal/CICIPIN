@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review</title>
+</head>
+<body>
+    <h2>Add Review for {{ restaurant['name'] }}</h2>
+
+    <!-- Menampilkan flash message jika ada -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulir untuk menambahkan ulasan -->
+    <form method="POST" enctype="multipart/form-data">
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" name="rating" min="1" max="5" required><br>
+
+        <label for="comment">Comment:</label><br>
+        <textarea name="comment" required></textarea><br>
+
+        <!-- Input untuk mengunggah gambar -->
+        <label for="image">Upload Image (optional):</label>
+        <input type="file" name="image"><br>
+
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <p><a href="{{ url_for('index') }}">Back to Restaurant List</a></p>
+
+</body>
+</html>
