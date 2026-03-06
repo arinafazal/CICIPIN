@@ -66,7 +66,7 @@
                     {% endif %}
                     <div class="card-info">
                         <h4>{{ restaurant['name'] }}</h4>
-                        <p>Rating: {{ restaurant['rating'] }} ({{ restaurant['reviews'] }} reviews)</p>
+                        <p>Rating: {{ restaurant['rating'] }} ({{ restaurant['reviews'] | length }} reviews)</p>
                         <p>Location: {{ restaurant['address'] }}</p>
                         <p>Price: Rp {{ restaurant.get('price_range', 'N/A') }}</p>
                     </div>

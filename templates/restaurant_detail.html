@@ -1,33 +1,124 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant['name'] }}</title>
-</head>
-<body>
-    <h2>{{ restaurant['name'] }}</h2>
-    <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-detail-image">
-    <p>Category: {{ restaurant['category'] }}</p>
-    <p>Rating: {{ restaurant['rating'] }} ({{ restaurant['reviews'] }} reviews)</p>
-    <p>Address: {{ restaurant['address'] }}</p>
-    <p>Price Range: Rp {{ restaurant['price_range'] }}</p>
 
-    <h3>Reviews</h3>
-    {% for review in restaurant['reviews'] %}
-        <div class="review">
-            <p>Rating: {{ review['rating'] }} - {{ review['comment'] }}</p>
-            {% if review['image_url'] %}
-                <img src="{{ review['image_url'] }}" alt="Review Image">
-            {% endif %}
-        </div>
-    {% endfor %}
-    
-    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}">Add Review</a> |
-    {% if username == 'admin' %}
-        <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}">Edit</a> |
-        <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" onclick="return confirm('Yakin menghapus restoran ini?');">Delete</a> |
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .restaurant-detail-image{
+            width: 300px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .review{
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .review img{
+            width: 150px;
+            margin-top: 5px;
+        }
+
+        #map{
+            height:400px;
+            width:100%;
+            margin-top:10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>{{ restaurant['name'] }}</h2>
+
+<img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-detail-image">
+
+<p><b>Category:</b> {{ restaurant['category'] }}</p>
+<p><b>Rating:</b> {{ restaurant['rating'] }} ({{ restaurant['reviews'] | length }} reviews)</p>
+<p><b>Address:</b> {{ restaurant['address'] }}</p>
+<p><b>Price Range:</b> Rp {{ restaurant['price_range'] }}</p>
+
+<!-- MAP -->
+{% if restaurant.get('latitude') and restaurant.get('longitude') %}
+<h3>Location</h3>
+<div id="map"></div>
+{% else %}
+<p><i>Lokasi tidak tersedia</i></p>
+{% endif %}
+
+<h3>Reviews</h3>
+
+{% for review in restaurant['reviews'] %}
+<div class="review">
+    <p>
+        <strong>{{ review.get('username','Anonymous') }}</strong>
+        - Rating: {{ review['rating'] }}
+        <br>
+        {{ review['comment'] }}
+    </p>
+
+    {% if review.get('image_url') %}
+        <img src="{{ review['image_url'] }}" alt="Review Image">
     {% endif %}
-    <a href="{{ url_for('index') }}">Back to Restaurant List</a>
+</div>
+{% endfor %}
+
+<br>
+
+<a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}">Add Review</a> |
+
+{% if username == 'admin' %}
+<a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}">Edit</a> |
+<a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}"
+onclick="return confirm('Yakin menghapus restoran ini?');">Delete</a> |
+{% endif %}
+
+<a href="{{ url_for('index') }}">Back to Restaurant List</a>
+
+
+<!-- Leaflet JS -->
+<!-- <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> -->
+
+<!-- <script>
+
+var mapElement = document.getElementById("map");
+
+if (mapElement){
+
+    var lat = {% if restaurant.latitude is not none %}{{ restaurant.latitude }}{% else %}null{% endif %};
+    var lng = {% if restaurant.longitude is not none %}{{ restaurant.longitude }}{% else %}null{% endif %};
+
+    if(lat !== null && lng !== null){
+
+        var map = L.map("map").setView([lat, lng], 15);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap contributors"
+        }).addTo(map);
+
+        L.marker([lat, lng]).addTo(map)
+        .bindPopup("<b>{{ restaurant['name'] }}</b><br>{{ restaurant['address'] }}")
+        .openPopup();
+
+    }
+
+}
+
+</script> -->
+
 </body>
 </html>

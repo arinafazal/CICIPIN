@@ -122,7 +122,7 @@ def index():
         return render_template('index.html', restaurants=[], recommended_restaurants=[], username=session.get('username'))
 
     # Mengambil data pencarian dari query params
-    category = request.args.get('category') or None
+    search_term = request.args.get('category') or None  # gunakan 'category' sebagai search_term untuk backward compat
 
     # hanya konversi jika disediakan, biarkan None bila kosong
     min_rating = request.args.get('min_rating')
@@ -131,24 +131,31 @@ def index():
     max_price = float(max_price) if max_price else None
 
     # Mendapatkan restoran yang direkomendasikan
-    recommended_restaurants = get_recommended_restaurants(category, min_rating)
+    recommended_restaurants = get_recommended_restaurants(search_term, min_rating)
 
     # Menampilkan restoran yang sesuai dengan filter
-    restaurants = search_restaurants(category, min_rating, max_price)
+    restaurants = search_restaurants(search_term, min_rating, max_price)
 
     return render_template('index.html', restaurants=restaurants, recommended_restaurants=recommended_restaurants, username=session["username"])
 
 # Fungsi untuk mencari restoran dengan filter
-def search_restaurants(category=None, min_rating=None, max_price=None):
+def search_restaurants(search_term=None, min_rating=None, max_price=None):
     query = {}
 
-    if category:
-        query['category'] = category
+    if search_term:
+        # cari di name, category, atau address dengan regex case-insensitive
+        query['$or'] = [
+            {'name': {'$regex': search_term, '$options': 'i'}},
+            {'category': {'$regex': search_term, '$options': 'i'}},
+            {'address': {'$regex': search_term, '$options': 'i'}}
+        ]
+
     if min_rating is not None:
         query['rating'] = {'$gte': min_rating}
     if max_price is not None:
         # sertakan restoran yang belum punya field price (agar daftar tidak kosong)
-        query['$or'] = [
+        existing_or = query.get('$or', [])
+        query['$or'] = existing_or + [
             {'price': {'$lte': max_price}},
             {'price': {'$exists': False}}
         ]
@@ -157,10 +164,15 @@ def search_restaurants(category=None, min_rating=None, max_price=None):
     return [restaurant for restaurant in restaurants]
 
 # Fungsi untuk mendapatkan restoran yang direkomendasikan
-def get_recommended_restaurants(category=None, min_rating=None):
+def get_recommended_restaurants(search_term=None, min_rating=None):
     query = {}
-    if category:
-        query['category'] = category
+    if search_term:
+        # cari di name, category, atau address
+        query['$or'] = [
+            {'name': {'$regex': search_term, '$options': 'i'}},
+            {'category': {'$regex': search_term, '$options': 'i'}},
+            {'address': {'$regex': search_term, '$options': 'i'}}
+        ]
     if min_rating is not None:
         query['rating'] = {'$gte': min_rating}
 
@@ -276,34 +288,43 @@ def add_review(restaurant_id):
     if "user_id" not in session:  # Cek jika pengguna belum login
         return redirect(url_for("login"))
 
+    if db is None:
+        flash('Cannot add review: database unreachable', 'danger')
+        return redirect(url_for('index'))
+
     # Ambil data restoran berdasarkan ID
     restaurant = db.restaurants.find_one({"_id": ObjectId(restaurant_id)})
 
     if request.method == 'POST':
-        rating = float(request.form['rating'])
-        comment = request.form['comment']
+        try:
+            rating = float(request.form['rating'])
+            comment = request.form['comment']
 
-        # Menyimpan gambar ulasan
-        if 'image' in request.files:
-            image = request.files['image']
-            if image and image.filename:
-                filename = secure_filename(image.filename)
-                file_path = os.path.join('static/uploads', filename)
-                image.save(file_path)  # Menyimpan gambar
-                process_image(file_path, size=(400,400))  # lebih kecil untuk review
-                image_url = f'/static/uploads/{filename}'
+            # Menyimpan gambar ulasan
+            if 'image' in request.files:
+                image = request.files['image']
+                if image and image.filename:
+                    filename = secure_filename(image.filename)
+                    file_path = os.path.join('static/uploads', filename)
+                    image.save(file_path)  # Menyimpan gambar
+                    process_image(file_path, size=(400,400))  # lebih kecil untuk review
+                    image_url = f'/static/uploads/{filename}'
+                else:
+                    image_url = None
             else:
                 image_url = None
-        else:
-            image_url = None
 
-        # Simpan ulasan ke MongoDB
-        db.restaurants.update_one(
-            {"_id": ObjectId(restaurant_id)},
-            {"$push": {"reviews": {"user_id": session["user_id"], "rating": rating, "comment": comment, "image_url": image_url}}}
-        )
-        flash("Review added successfully!", "success")
-        return redirect(url_for('restaurant_detail', restaurant_id=restaurant_id))  # Arahkan kembali ke halaman detail restoran
+            # Simpan ulasan ke MongoDB
+            db.restaurants.update_one(
+                {"_id": ObjectId(restaurant_id)},
+                {"$push": {"reviews": {"user_id": session["user_id"], "username": session["username"], "rating": rating, "comment": comment, "image_url": image_url}}}
+            )
+            flash("Review added successfully!", "success")
+            return redirect(url_for('restaurant_detail', restaurant_id=restaurant_id))  # Arahkan kembali ke halaman detail restoran
+        except Exception as exc:
+            app.logger.error("add review error: %s", exc)
+            flash('Failed to add review, please try again later.', 'danger')
+            return redirect(url_for('add_review', restaurant_id=restaurant_id))
 
     # Jika restoran tidak ada
     if not restaurant:
@@ -335,6 +356,6 @@ def logout():
     flash('You have successfully logged out.', 'success')  # Menampilkan pesan logout sukses
     return redirect(url_for('login'))  # Arahkan kembali ke halaman login setelah logout
 
-# Fungsi utama untuk menjalankan aplikasi Flask
+# Fungsi utama untuk menjalankan aplikasi Flask (hanya untuk development lokal)
 if __name__ == '__main__':
     app.run(debug=True)
