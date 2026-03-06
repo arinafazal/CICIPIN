@@ -12,8 +12,8 @@ from PIL import Image
 load_dotenv()
 
 # Inisialisasi aplikasi Flask
-app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Secret key untuk session
+app = Flask(__name__, static_folder='static', static_url_path='/static')
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')  # Secret key untuk session
 
 # Koneksi ke MongoDB menggunakan URI dan DB_NAME dari .env
 # buat koneksi MongoDB dengan penanganan kesalahan agar aplikasi tidak langsung crash
