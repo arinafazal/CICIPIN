@@ -1,34 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Masuk - CICIPIN</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <h2>Login</h2>
-
-    <!-- Menampilkan flash message jika ada -->
+<body style="background-color: var(--cream-bg); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <!-- Flash Message for Notifications -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="popup {{ category }}" id="popupMessage">
+                <div class="popup {{ category }} show" id="popupMessage">
                     <p id="popupText">{{ message }}</p>
                 </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('login') }}" method="POST">
-        <label>Username:</label>
-        <input type="text" name="username" required><br>
-        <label>Password:</label>
-        <input type="password" name="password" required><br>
-        <button type="submit">Login</button>
-    </form>
+    <div class="auth-container">
+        <div class="auth-form-box">
+            <h1><span style="font-size: 28px;">🐱</span> Masuk</h1>
+            <p class="auth-tagline">Tempat kucing-kucing lapar berbagi review! 🍽️</p>
 
-    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="text" id="username" name="username" placeholder="kucing@cicipin.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Masuk Sekarang</button>
+            </form>
+
+            <div class="auth-link">
+                Belum punya akun? <a href="{{ url_for('register') }}">Daftar di sini</a>
+            </div>
+
+            <div class="decorative-icons">🐱 😸 😻</div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Auto-hide popup after 3 seconds
+        const popup = document.getElementById('popupMessage');
+        if (popup) {
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
