@@ -269,7 +269,7 @@ def add_restaurant():
 
                 filename = secure_filename(image.filename)
 
-                file_path = os.path.join('static/uploads', filename)
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
                 image.save(file_path)
                 process_image(file_path)
                 image_url = f'/static/uploads/{filename}'
