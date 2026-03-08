@@ -459,6 +459,7 @@ header .logout-btn {
 }
 
 /* ============ LOGIN & REGISTER PAGES ============ */
+
 .auth-container {
     display: flex;
     justify-content: center;
@@ -468,17 +469,26 @@ header .logout-btn {
     padding: 20px;
 }
 
+/* form box login & register dibuat sama persis */
 .auth-form-box {
     background-color: white;
     padding: 50px;
     border-radius: 20px;
     width: 100%;
     max-width: 450px;
-    border: 3px solid var(--primary-pink);
+    
+    /* border gradient supaya konsisten */
+    border: 3px solid transparent;
+    background-image:
+        linear-gradient(white, white),
+        linear-gradient(135deg, var(--primary-orange), var(--primary-yellow));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
 }
 
+/* hapus perbedaan register supaya ukurannya sama */
 .auth-form-box.register {
-    border-color: var(--primary-yellow);
+    border: 3px solid transparent;
 }
 
 .auth-form-box h1 {
@@ -564,10 +574,6 @@ header .logout-btn {
 
 .auth-link a:hover {
     text-decoration: underline;
-}
-
-.register-link {
-    color: var(--primary-yellow);
 }
 
 .decorative-icons {
