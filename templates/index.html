@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cicipin - Review Makanan Ala Kucing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <!-- Header Section -->
+
     <header>
         <div class="logo">
             <div class="logo-text">🐱 Cicipin</div>
@@ -19,156 +21,208 @@
         </div>
     </header>
 
-    <!-- Flash Message for Notifications -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="popup {{ category }} show" id="popupMessage">
-                    <p id="popupText">{{ message }}</p>
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="popup {{ category }} show" id="popupMessage">
+        <p id="popupText">{{ message }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <h1>Temukan Restoran Terbaik! 🔍</h1>
         <p>Review jujur dari para kucing yang doyan makan</p>
+
         <form method="GET" class="search-form">
-            <input type="text" name="category" 
-                   placeholder="🔍 Cari restoran, kategori, atau lokasi..." 
-                   value="{{ request.args.get('category', '') }}">
+            <input type="text" name="category" placeholder="🔍 Cari restoran, kategori, atau lokasi..."
+                value="{{ request.args.get('category', '') }}">
             <button type="submit">Cari</button>
         </form>
     </section>
 
-    <!-- Category Section -->
     <section class="category-section">
         <h2><span class="category-icon">🍽️</span> Kategori Makanan</h2>
+
         <div class="category-grid">
-            <a href="{{ url_for('index', category='semua') }}" class="category-item {% if request.args.get('category') == 'Semua' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='semua') }}" class="category-item">
                 <div class="category-icon-lg">😸</div>
                 <div>Semua</div>
             </a>
-            <a href="{{ url_for('index', category='Indonesia') }}" class="category-item {% if request.args.get('category') == 'Indonesia' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Indonesia') }}" class="category-item">
                 <div class="category-icon-lg">🍲</div>
                 <div>Indonesia</div>
             </a>
-            <a href="{{ url_for('index', category='Jepang') }}" class="category-item {% if request.args.get('category') == 'Jepang' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Jepang') }}" class="category-item">
                 <div class="category-icon-lg">🍱</div>
                 <div>Jepang</div>
             </a>
-            <a href="{{ url_for('index', category='Italia') }}" class="category-item {% if request.args.get('category') == 'Italia' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Italia') }}" class="category-item">
                 <div class="category-icon-lg">🍕</div>
                 <div>Italia</div>
             </a>
-            <a href="{{ url_for('index', category='Kafe') }}" class="category-item {% if request.args.get('category') == 'Kafe' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Kafe') }}" class="category-item">
                 <div class="category-icon-lg">☕</div>
                 <div>Kafe</div>
             </a>
-            <a href="{{ url_for('index', category='Korea') }}" class="category-item {% if request.args.get('category') == 'Korea' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Korea') }}" class="category-item">
                 <div class="category-icon-lg">🍖</div>
                 <div>Korea</div>
             </a>
-            <a href="{{ url_for('index', category='Chinese') }}" class="category-item {% if request.args.get('category') == 'Chinese' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Chinese') }}" class="category-item">
                 <div class="category-icon-lg">🥢</div>
                 <div>Chinese</div>
             </a>
-            <a href="{{ url_for('index', category='Western') }}" class="category-item {% if request.args.get('category') == 'Western' %}active{% endif %}">
+
+            <a href="{{ url_for('index', category='Western') }}" class="category-item">
                 <div class="category-icon-lg">🍔</div>
                 <div>Western</div>
             </a>
+
         </div>
     </section>
 
-    <!-- Filter Section -->
     <section class="filter-section">
         <form method="GET" class="filter-form">
+
             <label for="min_rating">Rating Min:</label>
-            <input type="number" name="min_rating" min="1" max="5" step="0.1"
-                   placeholder="4.0">
+            <input type="number" name="min_rating" min="1" max="5" step="0.1" placeholder="4.0">
 
             <label for="max_price">Harga Max:</label>
-            <input type="number" name="max_price" 
-                   placeholder="100.000">
+            <input type="number" name="max_price" placeholder="100.000">
 
             <button type="submit">Filter</button>
+
         </form>
     </section>
 
-    <!-- Restaurant List Section -->
     <section class="restaurant-list">
-        <h3><span class="category-icon">🍽️</span> Restoran Pilihan ({{ restaurants | length }})</h3>
+
+        <h3>
+            <span class="category-icon">🍽️</span>
+            Restoran Pilihan ({{ restaurants | length }})
+        </h3>
+
         {% if restaurants %}
-            <div class="restaurant-cards">
-                {% for restaurant in restaurants %}
-                    <div class="restaurant-card">
 
-                        <!-- Restaurant Image with Badge -->
-                        <div style="position: relative;">
-                            {% if restaurant['image_url'] %}
-                                <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
-                            {% else %}
-                                <div style="width: 100%; height: 250px; background-color: #DDD; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
-                            {% endif %}
+        <div class="restaurant-cards">
 
-                            <!-- OPEN / CLOSED BADGE -->
-                            {% if restaurant.is_open == True %}
-                                <div class="opening-badge" style="background:#28a745;">🟢 Buka</div>
-                            {% elif restaurant.is_open == False %}
-                                <div class="opening-badge" style="background:#dc3545;">🔴 Tutup</div>
-                            {% else %}
-                                <div class="opening-badge" style="background:#888;">⏱️ Jam tidak tersedia</div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Card Info -->
-                        <div class="card-info">
-                            <h4>{{ restaurant['name'] }}</h4>
-                            
-                            <div class="rating-section">
-                                {% if restaurant.average_rating is not none %}
-                                <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
-                            {% else %}
-                                <div class="rating-badge" style="opacity:0.6;">--</div>
-                            {% endif %}
-                                <div class="review-count">({{ restaurant['reviews'] | length }} review)</div>
-                            </div>
-                            
-                            <p><span class="location-icon">📍</span> {{ restaurant['address'] }}</p>
-                            <p><span class="food-icon">🍽️</span> {{ restaurant.get('category', 'N/A') }}</p>
-                            
-                            {% if restaurant.get('price_range') %}
-                                <p class="price">Rp {{ restaurant.get('price_range', 'N/A') }}</p>
-                            {% endif %}
-                        </div>
+            {% for restaurant in restaurants %}
 
-                        <!-- Action Buttons -->
-                        <div class="card-buttons">
-                            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn">Buka</a>
-                            <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Review</a>
-                            {% if username == 'admin' %}
-                                <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Edit</a>
-                                <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" onclick="return confirm('Yakin menghapus restoran ini?');">Hapus</a>
-                            {% endif %}
+            <div class="restaurant-card">
+
+                <div style="position: relative;">
+
+                    {% if restaurant['image_url'] %}
+                    <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
+                    {% else %}
+                    <div
+                        style="width:100%;height:250px;background:#DDD;display:flex;align-items:center;justify-content:center;color:#999;">
+                        No Image
+                    </div>
+                    {% endif %}
+
+                    {% if restaurant.is_open == True %}
+                    <div class="opening-badge" style="background:#28a745;">🟢 Buka</div>
+                    {% elif restaurant.is_open == False %}
+                    <div class="opening-badge" style="background:#dc3545;">🔴 Tutup</div>
+                    {% else %}
+                    <div class="opening-badge" style="background:#888;">⏱️ Jam tidak tersedia</div>
+                    {% endif %}
+
+                </div>
+
+                <div class="card-info">
+
+                    <h4>{{ restaurant['name'] }}</h4>
+
+                    <div class="rating-section">
+
+                        {% if restaurant.average_rating is not none %}
+                        <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
+                        {% else %}
+                        <div class="rating-badge" style="opacity:0.6;">--</div>
+                        {% endif %}
+
+                        <div class="review-count">
+                            ({{ restaurant['reviews'] | length }} review)
                         </div>
 
                     </div>
-                {% endfor %}
+
+                    <p>
+                        <span class="location-icon">📍</span>
+                        {{ restaurant['address'] }}
+                    </p>
+
+                    <p>
+                        <span class="food-icon">🍽️</span>
+                        {{ restaurant.get('category','N/A') }}
+                    </p>
+
+                    {% if restaurant.get('price_range') %}
+                    <p class="price">Rp {{ restaurant.get('price_range','N/A') }}</p>
+                    {% endif %}
+
+                </div>
+
+                <div class="card-buttons">
+
+                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn">
+                        Buka
+                    </a>
+
+                    {% if username != 'admin' %}
+                    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">
+                        Review
+                    </a>
+                    {% endif %}
+
+                    {% if username == 'admin' %}
+                    <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}"
+                        class="btn btn-secondary">
+                        Edit
+                    </a>
+
+                    <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger"
+                        onclick="return confirm('Yakin menghapus restoran ini?');">
+                        Hapus
+                    </a>
+                    {% endif %}
+
+                </div>
+
             </div>
+
+            {% endfor %}
+
+        </div>
+
         {% else %}
-            <div style="text-align: center; padding: 40px; color: #999;">
-                <p style="font-size: 48px; margin-bottom: 10px;">😸</p>
-                <p>Belum ada restoran yang sesuai dengan pencarian Anda</p>
-            </div>
+
+        <div style="text-align:center;padding:40px;color:#999;">
+            <p style="font-size:48px;margin-bottom:10px;">😸</p>
+            <p>Belum ada restoran yang sesuai dengan pencarian Anda</p>
+        </div>
+
         {% endif %}
+
     </section>
 
-    <!-- Add Restaurant Section -->
     {% if username == 'admin' %}
-        <section class="add-restaurant-link" style="padding: 40px; background-color: var(--cream-bg); text-align: center;">
-            <a href="{{ url_for('add_restaurant') }}" class="btn" style="display: inline-block; padding: 15px 40px;">+ Tambah Restoran</a>
-        </section>
+    <section class="add-restaurant-link" style="padding:40px;background:var(--cream-bg);text-align:center;">
+        <a href="{{ url_for('add_restaurant') }}" class="btn" style="display:inline-block;padding:15px 40px;">
+            + Tambah Restoran
+        </a>
+    </section>
     {% endif %}
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
@@ -183,4 +237,5 @@
     </script>
 
 </body>
+
 </html>

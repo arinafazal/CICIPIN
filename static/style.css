@@ -459,7 +459,6 @@ header .logout-btn {
 }
 
 /* ============ LOGIN & REGISTER PAGES ============ */
-
 .auth-container {
     display: flex;
     justify-content: center;
@@ -469,26 +468,17 @@ header .logout-btn {
     padding: 20px;
 }
 
-/* form box login & register dibuat sama persis */
 .auth-form-box {
     background-color: white;
     padding: 50px;
     border-radius: 20px;
     width: 100%;
     max-width: 450px;
-    
-    /* border gradient supaya konsisten */
-    border: 3px solid transparent;
-    background-image:
-        linear-gradient(white, white),
-        linear-gradient(135deg, var(--primary-orange), var(--primary-yellow));
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
+    border: 3px solid var(--primary-pink);
 }
 
-/* hapus perbedaan register supaya ukurannya sama */
 .auth-form-box.register {
-    border: 3px solid transparent;
+    border-color: var(--primary-yellow);
 }
 
 .auth-form-box h1 {
@@ -576,6 +566,10 @@ header .logout-btn {
     text-decoration: underline;
 }
 
+.register-link {
+    color: var(--primary-yellow);
+}
+
 .decorative-icons {
     text-align: center;
     margin-top: 30px;
@@ -630,10 +624,11 @@ header .logout-btn {
 }
 
 .detail-container {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 30px;
-    padding: 40px;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: block;
     background-color: var(--cream-bg);
 }
 
@@ -787,6 +782,9 @@ header .logout-btn {
     padding: 30px;
     border-radius: 15px;
     margin-top: 30px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .review-form h3 {
@@ -834,6 +832,17 @@ header .logout-btn {
     font-weight: 600;
     cursor: pointer;
     margin-top: 15px;
+}
+
+.form-container{
+    display:flex;
+    justify-content:center;
+    padding:40px;
+}
+
+.form-section{
+    width:100%;
+    max-width:900px;
 }
 
 /* ============ RESPONSIVE ============ */

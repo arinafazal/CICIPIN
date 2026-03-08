@@ -46,27 +46,6 @@
                  data-lat="{{ restaurant.latitude }}" data-lng="{{ restaurant.longitude }}"></div>
             {% endif %}
         </div>
-
-        <div>
-            <div class="info-box">
-                <div class="info-item">
-                    <div class="info-icon">📍</div>
-                    <div class="info-content">
-                        <h3>Alamat</h3>
-                        <p>{{ restaurant['address'] }}</p>
-                    </div>
-                </div>
-                {% if restaurant.get('opening_hours') %}
-                <div class="info-item">
-                    <div class="info-icon">⏰</div>
-                    <div class="info-content">
-                        <h3>Jam Buka</h3>
-                        <p>{{ restaurant['opening_hours'] }}</p>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
 
     <!-- reviews -->
@@ -87,7 +66,6 @@
                         {% if review.image_url %}
                         <img src="{{ review.image_url }}" alt="review-image" style="max-width:200px; margin-top:10px;" />
                         {% endif %}
-                        <div class="review-likes">👍 {{ review.get('likes',0) }}</div>
                     </div>
                 </div>
                 {% endfor %}

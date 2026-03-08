@@ -1,61 +1,92 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Restoran - {{ restaurant['name'] }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <!-- header -->
-    <header>
-        <div class="logo">
-            <div class="logo-text">🐱 Cicipin</div>
-        </div>
-        <div class="user-menu">
-            <span>{{ username }}</span>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-        </div>
-    </header>
 
-    <div class="detail-container" style="padding-top:40px;">
-        <div class="detail-section">
-            <h2>Edit Restoran: {{ restaurant['name'] }}</h2>
-            {% with messages = get_flashed_messages(with_categories=true) %}
+<body>
+    <!DOCTYPE html>
+
+    <html lang="id">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Restoran - {{ restaurant['name'] }}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+
+    <body>
+        <!-- header -->
+        <header>
+            <div class="logo">
+                <div class="logo-text">🐱 Cicipin</div>
+            </div>
+        </header>
+
+        <div class="form-container">
+            <div class="detail-section form-section">
+
+                <h2>Edit Restoran: {{ restaurant['name'] }}</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="popup {{ messages[0][0] }} show" id="popupMessage">
-                        {{ messages[0][1] }}
-                    </div>
+                <div class="popup {{ messages[0][0] }} show" id="popupMessage">
+                    {{ messages[0][1] }}
+                </div>
                 {% endif %}
-            {% endwith %}
-            <form action="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" method="POST">
-                <div class="form-group">
-                    <label for="name">Nama Restoran:</label>
-                    <input type="text" name="name" value="{{ restaurant['name'] }}" required>
+                {% endwith %}
+
+                <form action="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" method="POST">
+
+                    <div class="form-group">
+                        <label>Nama Restoran:</label>
+                        <input type="text" name="name" value="{{ restaurant['name'] }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kategori:</label>
+                        <input type="text" name="category" value="{{ restaurant['category'] }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Alamat:</label>
+                        <input type="text" name="address" value="{{ restaurant['address'] }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jam Buka (opsional):</label>
+                        <input type="text" name="opening_hours" value="{{ restaurant.get('opening_hours','') }}"
+                            placeholder="08:00-22:00">
+                    </div>
+
+                    <div style="text-align:center;">
+                        <button type="submit" class="btn">Simpan Perubahan</button>
+                    </div>
+
+                </form>
+
+                <div class="auth-link" style="margin-top:20px;">
+                    <a href="{{ url_for('index') }}">Kembali ke daftar restoran</a>
                 </div>
-                <div class="form-group">
-                    <label for="category">Kategori:</label>
-                    <input type="text" name="category" value="{{ restaurant['category'] }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Alamat:</label>
-                    <input type="text" name="address" value="{{ restaurant['address'] }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="opening_hours">Jam Buka (opsional):</label>
-                    <input type="text" name="opening_hours" value="{{ restaurant.get('opening_hours','') }}" placeholder="10:00 - 22:00">
-                </div>
-                <button type="submit" class="btn">Simpan Perubahan</button>
-            </form>
-            <div class="auth-link" style="margin-top:20px;">
-                <a href="{{ url_for('index') }}">Kembali ke daftar restoran</a>
+
             </div>
         </div>
-    </div>
 
-    <script>
-        const popup = document.getElementById('popupMessage');
-        if(popup){ setTimeout(()=>popup.classList.remove('show'),3000); }
-    </script>
+        <script>
+            const popup = document.getElementById('popupMessage');
+            if (popup) {
+                setTimeout(() => popup.classList.remove('show'), 3000);
+            }
+        </script>
+    </body>
+
+    </html>
+
 </body>
+
 </html>
