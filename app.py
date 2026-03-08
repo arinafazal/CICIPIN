@@ -14,7 +14,6 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
 
-
 # Konfigurasi Cloudinary
 cloudinary.config(
     cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
@@ -385,18 +384,14 @@ def add_review(restaurant_id):
 
         review_image = None
 
+        review_image = None
+
         if 'image' in request.files:
             image = request.files['image']
 
             if image and image.filename:
-                review_image = None
-
-                if 'image' in request.files:
-                    image = request.files['image']
-
-                    if image and image.filename:
-                        upload_result = cloudinary.uploader.upload(image)
-                        review_image = upload_result["secure_url"]
+                upload_result = cloudinary.uploader.upload(image)
+                review_image = upload_result["secure_url"]
 
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
