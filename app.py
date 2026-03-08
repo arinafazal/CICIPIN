@@ -5,7 +5,6 @@ load_dotenv()
 
 import cloudinary
 import cloudinary.uploader
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
@@ -14,16 +13,16 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
 
-# Konfigurasi Cloudinary
 cloudinary.config(
-    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
 )
 
-app = Flask(__name__, static_folder='static', static_url_path='/static')
+app = Flask(__name__, static_folder="static", static_url_path="/static")
 
-UPLOAD_FOLDER = '/tmp'
+UPLOAD_FOLDER = "/tmp"
 
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')
 
@@ -259,40 +258,53 @@ def add_restaurant():
         return redirect(url_for("index"))
 
     if request.method == 'POST':
+        try:
+            name = request.form.get('name')
+            category = request.form.get('category')
+            address = request.form.get('address')
 
-        name = request.form['name']
-        category = request.form['category']
-        address = request.form['address']
+            latitude = float(request.form.get('latitude'))
+            longitude = float(request.form.get('longitude'))
 
-        latitude = float(request.form['latitude'])
-        longitude = float(request.form['longitude'])
+            opening_hours = request.form.get('opening_hours')
+            price_range = request.form.get('price_range')
 
-        opening_hours = request.form.get('opening_hours')
-        price_range = request.form.get('price_range')
+            image_url = None
 
-        image_url = None
+            # ambil file image
+            image = request.files.get("image")
 
-        image = request.files.get("image")
+            if image and image.filename != "":
+                try:
+                    upload_result = cloudinary.uploader.upload(image)
+                    image_url = upload_result["secure_url"]
+                    print("UPLOAD SUCCESS:", image_url)
+                except Exception as e:
+                    print("CLOUDINARY ERROR:", e)
 
-        if image and image.filename != "":
-            try:
-                upload_result = cloudinary.uploader.upload(image)
-                image_url = upload_result["secure_url"]
-                print("UPLOAD SUCCESS:", image_url)
-            except Exception as e:
-                print("CLOUDINARY ERROR:", e)
+            new_restaurant = {
+                "name": name,
+                "category": category,
+                "address": address,
+                "latitude": latitude,
+                "longitude": longitude,
+                "opening_hours": opening_hours,
+                "price_range": price_range,
+                "image_url": image_url,
+                "reviews": []
+            }
 
-        new_restaurant = {
-            "name": name,
-            "category": category,
-            "address": address,
-            "latitude": latitude,
-            "longitude": longitude,
-            "opening_hours": opening_hours,
-            "price_range": price_range,
-            "image_url": image_url,
-            "reviews": []
-        }
+            db.restaurants.insert_one(new_restaurant)
+
+            flash("Restaurant added successfully!", "success")
+            return redirect(url_for('index'))
+
+        except Exception as e:
+            print("ADD RESTAURANT ERROR:", e)
+            flash("Failed to add restaurant", "danger")
+            return redirect(url_for('add_restaurant'))
+
+    return render_template('add_restaurant.html')
 
 
 # =========================
