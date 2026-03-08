@@ -12,8 +12,7 @@ load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = '/tmp'
 
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')
 
