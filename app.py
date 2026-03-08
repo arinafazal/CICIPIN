@@ -1,14 +1,26 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import cloudinary
+import cloudinary.uploader
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
-from dotenv import load_dotenv
 from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
 
-load_dotenv()
+
+# Konfigurasi Cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+)
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
@@ -262,17 +274,13 @@ def add_restaurant():
         image_url = None
 
         if 'image' in request.files:
-
             image = request.files['image']
 
             if image and image.filename:
 
-                filename = secure_filename(image.filename)
+                upload_result = cloudinary.uploader.upload(image)
 
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
-                image.save(file_path)
-                process_image(file_path)
-                image_url = f'/static/uploads/{filename}'
+                image_url = upload_result["secure_url"]
 
         new_restaurant = {
 
