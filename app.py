@@ -20,6 +20,9 @@ cloudinary.config(
     secure=True
 )
 
+print("CLOUDINARY CLOUD:", os.getenv("CLOUDINARY_CLOUD_NAME"))
+print("CLOUDINARY KEY:", os.getenv("CLOUDINARY_API_KEY"))
+
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
 UPLOAD_FOLDER = "/tmp"
