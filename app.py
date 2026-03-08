@@ -139,6 +139,20 @@ def index():
     return render_template('index.html', restaurants=restaurants, recommended_restaurants=recommended_restaurants, username=session["username"])
 
 # Fungsi untuk mencari restoran dengan filter
+def compute_average_rating(restaurant):
+    reviews = restaurant.get('reviews', [])
+    if reviews:
+        try:
+            avg = sum(r.get('rating', 0) for r in reviews) / len(reviews)
+        except Exception:
+            avg = 0
+        # store rounded 1 decimal place
+        restaurant['average_rating'] = round(avg, 1)
+    else:
+        restaurant['average_rating'] = None
+    return restaurant
+
+
 def search_restaurants(search_term=None, min_rating=None, max_price=None):
     query = {}
 
@@ -150,8 +164,9 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None):
             {'address': {'$regex': search_term, '$options': 'i'}}
         ]
 
-    if min_rating is not None:
-        query['rating'] = {'$gte': min_rating}
+    # rating filter now uses computed average_rating available after retrieval
+    # we'll filter in Python for simplicity
+
     if max_price is not None:
         # sertakan restoran yang belum punya field price (agar daftar tidak kosong)
         existing_or = query.get('$or', [])
@@ -161,7 +176,15 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None):
         ]
 
     restaurants = db.restaurants.find(query)
-    return [restaurant for restaurant in restaurants]
+    result = []
+    for restaurant in restaurants:
+        compute_average_rating(restaurant)
+        # apply min_rating filtering if needed
+        if min_rating is not None:
+            if restaurant['average_rating'] is None or restaurant['average_rating'] < min_rating:
+                continue
+        result.append(restaurant)
+    return result
 
 # Fungsi untuk mendapatkan restoran yang direkomendasikan
 def get_recommended_restaurants(search_term=None, min_rating=None):
@@ -173,11 +196,15 @@ def get_recommended_restaurants(search_term=None, min_rating=None):
             {'category': {'$regex': search_term, '$options': 'i'}},
             {'address': {'$regex': search_term, '$options': 'i'}}
         ]
-    if min_rating is not None:
-        query['rating'] = {'$gte': min_rating}
-
-    recommended_restaurants = db.restaurants.find(query)
-    return [restaurant for restaurant in recommended_restaurants]
+    restaurants = db.restaurants.find(query)
+    result = []
+    for restaurant in restaurants:
+        compute_average_rating(restaurant)
+        if min_rating is not None:
+            if restaurant['average_rating'] is None or restaurant['average_rating'] < min_rating:
+                continue
+        result.append(restaurant)
+    return result
 
 # Menambahkan restoran baru
 @app.route('/add_restaurant', methods=['GET', 'POST'])
@@ -185,13 +212,30 @@ def add_restaurant():
     if "user_id" not in session:  # Cek apakah sudah login
         return redirect(url_for("login"))
 
+    # Ambil kategori yang ada untuk dropdown
+    categories = []
+    if db:
+        categories = db.restaurants.distinct("category")
+    if not categories:
+        categories = ["Indonesian", "Chinese", "Western", "Japanese", "Fast Food", "Cafe", "Other"]
+
     if request.method == 'POST':
         name = request.form['name']
         category = request.form['category']
-        rating = float(request.form['rating'])
         address = request.form['address']
-        latitude = float(request.form['latitude'])
-        longitude = float(request.form['longitude'])
+        try:
+            latitude = float(request.form['latitude'])
+            longitude = float(request.form['longitude'])
+            if not (-90 <= latitude <= 90):
+                flash('Latitude harus antara -90 dan 90', 'danger')
+                return render_template('add_restaurant.html')
+            if not (-180 <= longitude <= 180):
+                flash('Longitude harus antara -180 dan 180', 'danger')
+                return render_template('add_restaurant.html')
+        except ValueError:
+            flash('Koordinat tidak valid', 'danger')
+            return render_template('add_restaurant.html')
+        opening_hours = request.form.get('opening_hours')
         price_range = request.form.get('price_range')
 
         # Parsing harga numerik untuk filter
@@ -201,6 +245,39 @@ def add_restaurant():
             nums = re.findall(r"\d+", price_range)
             if nums:
                 price = float(nums[-1])
+
+        # Menyimpan gambar restoran
+        image_url = None
+        if 'image' in request.files:
+            image = request.files['image']
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+                file_path = os.path.join('static/uploads', filename)
+                image.save(file_path)  # Menyimpan gambar di folder static/uploads
+                # lakukan resize / crop agar ukurannya seragam
+                process_image(file_path)
+                image_url = f'/static/uploads/{filename}'  # URL gambar
+
+        new_restaurant = {
+            "name": name,
+            "category": category,
+            # "rating": rating,  # now computed from reviews
+            "address": address,
+            "latitude": latitude,
+            "longitude": longitude,
+            "opening_hours": opening_hours,
+            "price_range": price_range,
+            "price": price,
+            "image_url": image_url,
+            "reviews": []
+        }
+
+        db.restaurants.insert_one(new_restaurant)
+        flash("Restaurant added successfully!", "success")  # Pesan sukses
+        print(f"Added restaurant: {new_restaurant}")  # Log data yang ditambahkan
+        
+        # Setelah menambah restoran, kembali ke halaman utama
+        return redirect(url_for('index'))  # Redirect ke halaman utama setelah menambah restoran
 
         # Menyimpan gambar restoran
         image_url = None
@@ -255,13 +332,13 @@ def edit_restaurant(restaurant_id):
     if request.method == 'POST':
         name = request.form['name']
         category = request.form['category']
-        rating = float(request.form['rating'])
         address = request.form['address']
+        opening_hours = request.form.get('opening_hours')
 
         # Update restoran di database
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
-            {"$set": {"name": name, "category": category, "rating": rating, "address": address}}
+            {"$set": {"name": name, "category": category, "address": address, "opening_hours": opening_hours}}
         )
         flash("Restaurant updated successfully!", "success")
         return redirect(url_for('index'))
@@ -341,6 +418,7 @@ def restaurant_detail(restaurant_id):
     restaurant = restaurants_collection.find_one({"_id": ObjectId(restaurant_id)})
 
     if restaurant:
+        compute_average_rating(restaurant)
         # Kirim data restoran ke template
         return render_template('restaurant_detail.html', restaurant=restaurant)
     else:

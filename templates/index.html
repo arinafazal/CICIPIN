@@ -118,7 +118,11 @@
                             <h4>{{ restaurant['name'] }}</h4>
                             
                             <div class="rating-section">
-                                <div class="rating-badge">⭐ {{ restaurant['rating'] }}</div>
+                                {% if restaurant.average_rating is not none %}
+                                <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
+                            {% else %}
+                                <div class="rating-badge" style="opacity:0.6;">--</div>
+                            {% endif %}
                                 <div class="review-count">({{ restaurant['reviews'] | length }} review)</div>
                             </div>
                             

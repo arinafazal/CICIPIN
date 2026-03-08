@@ -1,124 +1,154 @@
-```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ restaurant['name'] }}</title>
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        .restaurant-detail-image{
-            width: 300px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .review{
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 6px;
-        }
-
-        .review img{
-            width: 150px;
-            margin-top: 5px;
-        }
-
-        #map{
-            height:400px;
-            width:100%;
-            margin-top:10px;
-        }
-    </style>
+    <title>{{ restaurant['name'] }} - CICIPIN</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
+    <!-- back link -->
+    <a href="{{ url_for('index') }}" class="back-link">← Kembali ke daftar restoran</a>
 
-<h2>{{ restaurant['name'] }}</h2>
-
-<img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-detail-image">
-
-<p><b>Category:</b> {{ restaurant['category'] }}</p>
-<p><b>Rating:</b> {{ restaurant['rating'] }} ({{ restaurant['reviews'] | length }} reviews)</p>
-<p><b>Address:</b> {{ restaurant['address'] }}</p>
-<p><b>Price Range:</b> Rp {{ restaurant['price_range'] }}</p>
-
-<!-- MAP -->
-{% if restaurant.get('latitude') and restaurant.get('longitude') %}
-<h3>Location</h3>
-<div id="map"></div>
-{% else %}
-<p><i>Lokasi tidak tersedia</i></p>
-{% endif %}
-
-<h3>Reviews</h3>
-
-{% for review in restaurant['reviews'] %}
-<div class="review">
-    <p>
-        <strong>{{ review.get('username','Anonymous') }}</strong>
-        - Rating: {{ review['rating'] }}
-        <br>
-        {{ review['comment'] }}
-    </p>
-
-    {% if review.get('image_url') %}
-        <img src="{{ review['image_url'] }}" alt="Review Image">
+    <!-- hero image -->
+    {% if restaurant['image_url'] %}
+    <div style="position: relative;">
+        <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="hero-image">
+        <div class="hero-overlay">
+            <div class="restaurant-title">{{ restaurant['name'] }}</div>
+            <div class="restaurant-meta">
+                {% if restaurant.average_rating is not none %}
+                <span class="rating-badge">⭐ {{ restaurant.average_rating }}</span>
+                {% else %}
+                <span class="rating-badge" style="opacity:0.6;">--</span>
+                {% endif %}
+                <span class="review-count">({{ restaurant['reviews'] | length }} review)</span>
+                {% if restaurant.get('price_range') %}
+                <span class="price">Rp {{ restaurant['price_range'] }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
     {% endif %}
-</div>
-{% endfor %}
 
-<br>
+    <!-- details & sidebar -->
+    <div class="detail-container">
+        <div class="detail-section">
+            <h2><span class="category-icon">🍽️</span> Detail Restoran</h2>
+            <p class="about-text">Kategori: {{ restaurant['category'] }}</p>
+            <p class="about-text">Alamat: {{ restaurant['address'] }}</p>
+            {% if restaurant.get('opening_hours') %}
+            <p class="about-text">Jam Buka: {{ restaurant['opening_hours'] }}</p>
+            {% endif %}
+            {% if restaurant.get('latitude') and restaurant.get('longitude') %}
+            <div id="map" style="height:300px; margin-top:20px;"
+                 data-lat="{{ restaurant.latitude }}" data-lng="{{ restaurant.longitude }}"></div>
+            {% endif %}
+        </div>
 
-<a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}">Add Review</a> |
+        <div>
+            <div class="info-box">
+                <div class="info-item">
+                    <div class="info-icon">📍</div>
+                    <div class="info-content">
+                        <h3>Alamat</h3>
+                        <p>{{ restaurant['address'] }}</p>
+                    </div>
+                </div>
+                {% if restaurant.get('opening_hours') %}
+                <div class="info-item">
+                    <div class="info-icon">⏰</div>
+                    <div class="info-content">
+                        <h3>Jam Buka</h3>
+                        <p>{{ restaurant['opening_hours'] }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-{% if username == 'admin' %}
-<a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}">Edit</a> |
-<a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}"
-onclick="return confirm('Yakin menghapus restoran ini?');">Delete</a> |
-{% endif %}
+    <!-- reviews -->
+    <div class="detail-container" style="padding-top:0;">
+        <div class="detail-section">
+            <h2><span class="category-icon">💬</span> Ulasan</h2>
+            {% if restaurant['reviews'] %}
+                {% for review in restaurant['reviews'] %}
+                <div class="review-item">
+                    <div class="review-avatar">{{ review.username[0] if review.username else 'A' }}</div>
+                    <div class="review-content">
+                        <div class="review-header">
+                            <div class="review-name">{{ review.username or 'Anonymous' }}</div>
+                            <div class="review-time">{{ review.get('created_at','') }}</div>
+                        </div>
+                        <div class="review-stars">{% for i in range(review.rating|int) %}★{% endfor %}</div>
+                        <div class="review-text">{{ review.comment }}</div>
+                        {% if review.image_url %}
+                        <img src="{{ review.image_url }}" alt="review-image" style="max-width:200px; margin-top:10px;" />
+                        {% endif %}
+                        <div class="review-likes">👍 {{ review.get('likes',0) }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Tidak ada ulasan untuk restoran ini.</p>
+            {% endif %}
+        </div>
+    </div>
 
-<a href="{{ url_for('index') }}">Back to Restaurant List</a>
+    <!-- review form -->
+    <div class="detail-container" style="padding-top:0;">
+        <div class="review-form">
+            <h3>Tulis Review Kamu</h3>
+            <form action="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" method="POST" enctype="multipart/form-data">
+                <div class="star-rating">
+                    {% for i in range(1,6) %}
+                    <span class="star" data-value="{{ i }}">★</span>
+                    {% endfor %}
+                    <input type="hidden" name="rating" id="rating-input">
+                </div>
+                <textarea name="comment" placeholder="Ceritakan pengalaman kamu di sini..." required></textarea>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Upload Gambar (opsional):</label>
+                    <input type="file" name="image" accept="image/*">
+                </div>
+                <button type="submit">Kirim Review</button>
+            </form>
+        </div>
+    </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // map initialization using data attributes to avoid Jinja in JS
+        var mapEl = document.getElementById('map');
+        if (mapEl) {
+            var lat = parseFloat(mapEl.dataset.lat);
+            var lng = parseFloat(mapEl.dataset.lng);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                var map = L.map('map').setView([lat, lng], 18);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup("<b>{{ restaurant['name'] }}</b><br>{{ restaurant['address'] }}<br><a href='https://www.google.com/maps/@{{ restaurant.latitude }},{{ restaurant.longitude }},18z' target='_blank'>Lihat di Google Maps</a>");
+                // ensure correct rendering in hidden/resized containers
+                setTimeout(function(){ map.invalidateSize(); }, 100);
+                window.addEventListener('load', function() { map.invalidateSize(); });
+                window.addEventListener('resize', function() { map.invalidateSize(); });
+            }
+        }
 
-<!-- Leaflet JS -->
-<!-- <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> -->
-
-<!-- <script>
-
-var mapElement = document.getElementById("map");
-
-if (mapElement){
-
-    var lat = {% if restaurant.latitude is not none %}{{ restaurant.latitude }}{% else %}null{% endif %};
-    var lng = {% if restaurant.longitude is not none %}{{ restaurant.longitude }}{% else %}null{% endif %};
-
-    if(lat !== null && lng !== null){
-
-        var map = L.map("map").setView([lat, lng], 15);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: "© OpenStreetMap contributors"
-        }).addTo(map);
-
-        L.marker([lat, lng]).addTo(map)
-        .bindPopup("<b>{{ restaurant['name'] }}</b><br>{{ restaurant['address'] }}")
-        .openPopup();
-
-    }
-
-}
-
-</script> -->
-
+        // star rating script
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('rating-input');
+        stars.forEach(s => {
+            s.addEventListener('click', () => {
+                const value = s.getAttribute('data-value');
+                ratingInput.value = value;
+                stars.forEach(st => {
+                    st.classList.toggle('active', st.getAttribute('data-value') <= value);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,54 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Restaurant</title>
+    <title>Tambah Restoran - CICIPIN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Tambah Restoran Baru</h2>
+    <!-- header -->
+    <header>
+        <div class="logo">
+            <div class="logo-text">🐱 CICIPIN</div>
+        </div>
+        <div class="user-menu">
+            <span>{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </header>
 
-    <!-- Menampilkan flash message jika ada -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-            {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="detail-container" style="padding-top:40px;">
+        <div class="detail-section">
+            <h2>Tambah Restoran Baru</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="popup {{ messages[0][0] }} show" id="popupMessage">
+                        {{ messages[0][1] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Nama Restoran:</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Kategori:</label>
+                    <input type="text" name="category" required>
+                </div>
+                <div class="form-group">
+                    <label>Alamat:</label>
+                    <input type="text" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label>Jam Buka (opsional):</label>
+                    <input type="text" name="opening_hours" placeholder="10:00 - 22:00">
+                </div>
+                <div class="form-group">
+                    <label>Latitude:</label>
+                    <input type="number" name="latitude" step="any" placeholder="-6.2088" required>
+                    <small style="color:#666;">Copy dari Google Maps: klik kanan lokasi > "What's here?" > koordinat muncul di search bar</small>
+                </div>
+                <div class="form-group">
+                    <label>Longitude:</label>
+                    <input type="number" name="longitude" step="any" placeholder="106.8456" required>
+                </div>
+                <div class="form-group">
+                    <label>Price Range (e.g., Rp 10.000 - 50.000):</label>
+                    <input type="text" name="price_range" required>
+                </div>
+                <div class="form-group">
+                    <label>Upload Foto Restoran (opsional):</label>
+                    <input type="file" name="image" accept="image/*">
+                </div>
+                <button type="submit" class="btn">Tambah Restoran</button>
+            </form>
+            <div class="auth-link" style="margin-top:20px;">
+                <a href="{{ url_for('index') }}">Kembali ke daftar restoran</a>
+            </div>
+        </div>
+    </div>
 
-    <!-- Form untuk menambahkan restoran -->
-    <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
-        <label>Name:</label>
-        <input type="text" name="name" required><br>
-
-        <label>Category:</label>
-        <input type="text" name="category" required><br>
-
-        <label>Rating (1-5):</label>
-        <input type="number" name="rating" step="0.1" min="1" max="5" required><br>
-
-        <label>Address:</label>
-        <input type="text" name="address" required><br>
-
-        <label>Latitude:</label>
-        <input type="number" name="latitude" step="any" required><br>
-
-        <label>Longitude:</label>
-        <input type="number" name="longitude" step="any" required><br>
-
-        <label>Price Range (e.g., Rp 10.000 - 50.000):</label>
-        <input type="text" name="price_range" required><br>
-
-        <label>Upload Restaurant Photo (optional):</label>
-        <input type="file" name="image"><br>
-
-        <button type="submit">Add Restaurant</button>
-    </form>
-
-    <p><a href="{{ url_for('index') }}">Back to Restaurant List</a></p>
-
+    <script>
+        const popup = document.getElementById('popupMessage');
+        if(popup){ setTimeout(()=>popup.classList.remove('show'),3000); }
+    </script>
 </body>
 </html>
