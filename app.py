@@ -380,7 +380,7 @@ def add_review(restaurant_id):
 
     if request.method == 'POST':
 
-        rating = float(request.form['rating'])
+        rating = float(request.form.get('rating', 0))
         comment = request.form['comment']
 
         review_image = None
@@ -389,20 +389,27 @@ def add_review(restaurant_id):
             image = request.files['image']
 
             if image and image.filename:
-                upload_result = cloudinary.uploader.upload(image)
-                review_image = upload_result["secure_url"]
+                try:
+                    upload_result = cloudinary.uploader.upload(
+                        image,
+                        resource_type="image"
+                    )
+                    review_image = upload_result["secure_url"]
+                except Exception as e:
+                    app.logger.error(f"Cloudinary review upload failed: {e}")
 
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
             {
                 "$push": {
                     "reviews": {
-                    "user_id": session["user_id"],
-                    "username": session["username"],
-                    "rating": rating,
-                    "comment": comment,
-                    "image_url": review_image
-}
+                        "user_id": session["user_id"],
+                        "username": session["username"],
+                        "rating": rating,
+                        "comment": comment,
+                        "image_url": review_image,
+                        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M")
+                    }
                 }
             }
         )
@@ -412,7 +419,6 @@ def add_review(restaurant_id):
         return redirect(url_for('restaurant_detail', restaurant_id=restaurant_id))
 
     return render_template('add_review.html', restaurant=restaurant)
-
 
 # =========================
 # RESTAURANT DETAIL
