@@ -389,15 +389,14 @@ def add_review(restaurant_id):
             image = request.files['image']
 
             if image and image.filename:
-                filename = secure_filename(image.filename)
+                review_image = None
 
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                if 'image' in request.files:
+                    image = request.files['image']
 
-                image.save(file_path)
-
-                process_image(file_path)
-
-                review_image = f'/static/uploads/{filename}'
+                    if image and image.filename:
+                        upload_result = cloudinary.uploader.upload(image)
+                        review_image = upload_result["secure_url"]
 
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
