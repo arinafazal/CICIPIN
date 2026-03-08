@@ -272,35 +272,17 @@ def add_restaurant():
 
         image_url = None
 
-        # DEBUG: cek environment cloudinary
-        print("CLOUD NAME:", os.environ.get("CLOUDINARY_CLOUD_NAME"))
+        image = request.files.get("image")
 
-        if 'image' in request.files:
-
-            image = request.files['image']
-
-            print("IMAGE OBJECT:", image)
-            print("FILENAME:", image.filename)
-
-            if image and image.filename:
-
-                try:
-
-                    upload_result = cloudinary.uploader.upload(
-                        image,
-                        resource_type="image"
-                    )
-
-                    print("UPLOAD SUCCESS:", upload_result)
-
-                    image_url = upload_result["secure_url"]
-
-                except Exception as e:
-
-                    print("CLOUDINARY ERROR:", e)
+        if image and image.filename != "":
+            try:
+                upload_result = cloudinary.uploader.upload(image)
+                image_url = upload_result["secure_url"]
+                print("UPLOAD SUCCESS:", image_url)
+            except Exception as e:
+                print("CLOUDINARY ERROR:", e)
 
         new_restaurant = {
-
             "name": name,
             "category": category,
             "address": address,
@@ -310,16 +292,7 @@ def add_restaurant():
             "price_range": price_range,
             "image_url": image_url,
             "reviews": []
-
         }
-
-        db.restaurants.insert_one(new_restaurant)
-
-        flash("Restaurant added successfully!", "success")
-
-        return redirect(url_for('index'))
-
-    return render_template('add_restaurant.html')
 
 
 # =========================
