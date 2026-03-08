@@ -27,9 +27,6 @@ UPLOAD_FOLDER = "/tmp"
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')
 
 
-# =========================
-# IMAGE PROCESSING
-# =========================
 def process_image(path, size=(600,400)):
     try:
         img = Image.open(path)
@@ -45,10 +42,6 @@ def process_image(path, size=(600,400)):
     except Exception as e:
         app.logger.warning("failed to process image %s: %s", path, e)
 
-
-# =========================
-# DATABASE CONNECTION
-# =========================
 try:
     client = MongoClient(os.environ.get("MONGODB_URI"), serverSelectionTimeoutMS=5000)
     db = client[os.environ.get("DB_NAME")]
@@ -62,10 +55,6 @@ except Exception as exc:
     db = None
     restaurants_collection = None
 
-
-# =========================
-# LOGIN
-# =========================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -94,9 +83,6 @@ def login():
     return render_template('login.html')
 
 
-# =========================
-# REGISTER
-# =========================
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
@@ -130,17 +116,9 @@ def register():
 
     return render_template('register.html')
 
-
-# =========================
-# ADMIN CHECK
-# =========================
 def is_admin():
     return session.get("username") == "admin"
 
-
-# =========================
-# RATING CALCULATION
-# =========================
 def compute_average_rating(restaurant):
 
     reviews = restaurant.get('reviews', [])
@@ -158,10 +136,6 @@ def compute_average_rating(restaurant):
 
     return restaurant
 
-
-# =========================
-# OPEN STATUS
-# =========================
 def compute_open_status(restaurant):
 
     opening_hours = restaurant.get("opening_hours")
@@ -186,15 +160,10 @@ def compute_open_status(restaurant):
 
     return restaurant
 
-
-# =========================
-# SEARCH RESTAURANT
-# =========================
 def search_restaurants(search_term=None, min_rating=None, max_price=None):
 
     query = {}
 
-    # filter kategori langsung
     if search_term and search_term.lower() != "semua":
         query['category'] = search_term
 
@@ -216,19 +185,14 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None):
     return result
 
 
-# =========================
-# HOME PAGE
-# =========================
 @app.route('/')
 def index():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    # ambil kategori dari URL
     category = request.args.get("category")
 
-    # ambil filter lain
     min_rating = request.args.get("min_rating")
     max_price = request.args.get("max_price")
 
@@ -244,9 +208,6 @@ def index():
     )
 
 
-# =========================
-# ADD RESTAURANT
-# =========================
 @app.route('/add_restaurant', methods=['GET', 'POST'])
 def add_restaurant():
 
@@ -271,7 +232,6 @@ def add_restaurant():
 
             image_url = None
 
-            # ambil file image
             image = request.files.get("image")
 
             if image and image.filename != "":
@@ -307,9 +267,6 @@ def add_restaurant():
     return render_template('add_restaurant.html')
 
 
-# =========================
-# EDIT RESTAURANT
-# =========================
 @app.route('/edit_restaurant/<restaurant_id>', methods=['GET', 'POST'])
 def edit_restaurant(restaurant_id):
 
@@ -344,10 +301,6 @@ def edit_restaurant(restaurant_id):
 
     return render_template('edit_restaurant.html', restaurant=restaurant)
 
-
-# =========================
-# DELETE RESTAURANT
-# =========================
 @app.route('/delete_restaurant/<restaurant_id>')
 def delete_restaurant(restaurant_id):
 
@@ -365,9 +318,6 @@ def delete_restaurant(restaurant_id):
     return redirect(url_for('index'))
 
 
-# =========================
-# ADD REVIEW
-# =========================
 @app.route('/add_review/<restaurant_id>', methods=['GET', 'POST'])
 def add_review(restaurant_id):
 
@@ -422,9 +372,7 @@ def add_review(restaurant_id):
 
     return render_template('add_review.html', restaurant=restaurant)
 
-# =========================
-# RESTAURANT DETAIL
-# =========================
+
 @app.route('/restaurant/<restaurant_id>')
 def restaurant_detail(restaurant_id):
 
@@ -443,9 +391,6 @@ def restaurant_detail(restaurant_id):
     return redirect(url_for('index'))
 
 
-# =========================
-# LOGOUT
-# =========================
 @app.route('/logout')
 def logout():
 
@@ -456,8 +401,5 @@ def logout():
     return redirect(url_for('login'))
 
 
-# =========================
-# RUN APP
-# =========================
 if __name__ == '__main__':
     app.run(debug=True)
