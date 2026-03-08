@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Restoran - Cicipin</title>
+    <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='favicon.jpg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
     <!-- header -->
@@ -25,11 +28,11 @@
             <h2>Tambah Restoran Baru</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="popup {{ messages[0][0] }} show" id="popupMessage">
-                        {{ messages[0][1] }}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="popup {{ messages[0][0] }} show" id="popupMessage">
+                {{ messages[0][1] }}
+            </div>
+            {% endif %}
             {% endwith %}
 
             <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
@@ -106,10 +109,11 @@
 
     <script>
         const popup = document.getElementById('popupMessage');
-        if(popup){
-            setTimeout(()=>popup.classList.remove('show'),3000);
+        if (popup) {
+            setTimeout(() => popup.classList.remove('show'), 3000);
         }
     </script>
 
 </body>
+
 </html>

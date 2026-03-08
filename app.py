@@ -11,6 +11,10 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')
 
 
@@ -267,11 +271,8 @@ def add_restaurant():
                 filename = secure_filename(image.filename)
 
                 file_path = os.path.join('static/uploads', filename)
-
                 image.save(file_path)
-
                 process_image(file_path)
-
                 image_url = f'/static/uploads/{filename}'
 
         new_restaurant = {
@@ -375,16 +376,33 @@ def add_review(restaurant_id):
         rating = float(request.form['rating'])
         comment = request.form['comment']
 
+        review_image = None
+
+        if 'image' in request.files:
+            image = request.files['image']
+
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+                image.save(file_path)
+
+                process_image(file_path)
+
+                review_image = f'/static/uploads/{filename}'
+
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
             {
                 "$push": {
                     "reviews": {
-                        "user_id": session["user_id"],
-                        "username": session["username"],
-                        "rating": rating,
-                        "comment": comment
-                    }
+                    "user_id": session["user_id"],
+                    "username": session["username"],
+                    "rating": rating,
+                    "comment": comment,
+                    "image_url": review_image
+}
                 }
             }
         )
