@@ -16,10 +16,6 @@
         <div class="logo">
             <div class="logo-text">🐱 Cicipin</div>
         </div>
-        <div class="user-menu">
-            <span>{{ username }}</span>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-        </div>
     </header>
 
     <div class="detail-container" style="padding-top:40px;">
@@ -45,7 +41,7 @@
                 <!-- PERBAIKAN KATEGORI -->
                 <div class="form-group">
                     <label>Kategori:</label>
-                    <select name="category" required>
+                    <select name="category" class="form-input">
 
                         <option value="">Pilih kategori</option>
 
@@ -96,8 +92,9 @@
                     <input type="file" name="image" accept="image/*">
                 </div>
 
-                <button type="submit" class="btn">Tambah Restoran</button>
-
+                <div style="text-align:center;">
+                    <button type="submit" class="btn">Tambah Restoran</button>
+                </div>
             </form>
 
             <div class="auth-link" style="margin-top:20px;">

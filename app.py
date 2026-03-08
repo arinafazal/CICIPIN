@@ -272,15 +272,32 @@ def add_restaurant():
 
         image_url = None
 
+        # DEBUG: cek environment cloudinary
+        print("CLOUD NAME:", os.environ.get("CLOUDINARY_CLOUD_NAME"))
+
         if 'image' in request.files:
+
             image = request.files['image']
 
+            print("IMAGE OBJECT:", image)
+            print("FILENAME:", image.filename)
+
             if image and image.filename:
+
                 try:
-                    upload_result = cloudinary.uploader.upload(image)
+
+                    upload_result = cloudinary.uploader.upload(
+                        image,
+                        resource_type="image"
+                    )
+
+                    print("UPLOAD SUCCESS:", upload_result)
+
                     image_url = upload_result["secure_url"]
+
                 except Exception as e:
-                    app.logger.error(f"Cloudinary upload failed: {e}")
+
+                    print("CLOUDINARY ERROR:", e)
 
         new_restaurant = {
 
