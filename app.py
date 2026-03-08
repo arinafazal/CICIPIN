@@ -385,8 +385,6 @@ def add_review(restaurant_id):
 
         review_image = None
 
-        review_image = None
-
         if 'image' in request.files:
             image = request.files['image']
 
