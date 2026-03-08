@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CICIPIN - Review Makanan Ala Kucing</title>
+    <title>Cicipin - Review Makanan Ala Kucing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <!-- Header Section -->
     <header>
         <div class="logo">
-            <div class="logo-text">🐱 CICIPIN</div>
+            <div class="logo-text">🐱 Cicipin</div>
             <div class="tagline">Review makanan ala kucing! 🍽️</div>
         </div>
         <div class="user-menu">
@@ -46,7 +46,7 @@
     <section class="category-section">
         <h2><span class="category-icon">🍽️</span> Kategori Makanan</h2>
         <div class="category-grid">
-            <a href="{{ url_for('index', category='semua') }}" class="category-item {% if request.args.get('category') == 'semua' %}active{% endif %}">
+            <a href="{{ url_for('index', category='semua') }}" class="category-item {% if request.args.get('category') == 'Semua' %}active{% endif %}">
                 <div class="category-icon-lg">😸</div>
                 <div>Semua</div>
             </a>
@@ -86,11 +86,11 @@
         <form method="GET" class="filter-form">
             <label for="min_rating">Rating Min:</label>
             <input type="number" name="min_rating" min="1" max="5" step="0.1"
-                   placeholder="e.g., 4.0">
+                   placeholder="4.0">
 
             <label for="max_price">Harga Max:</label>
             <input type="number" name="max_price" 
-                   placeholder="e.g., 100000">
+                   placeholder="100.000">
 
             <button type="submit">Filter</button>
         </form>
@@ -103,6 +103,7 @@
             <div class="restaurant-cards">
                 {% for restaurant in restaurants %}
                     <div class="restaurant-card">
+
                         <!-- Restaurant Image with Badge -->
                         <div style="position: relative;">
                             {% if restaurant['image_url'] %}
@@ -110,7 +111,15 @@
                             {% else %}
                                 <div style="width: 100%; height: 250px; background-color: #DDD; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
                             {% endif %}
-                            <div class="opening-badge">⏱️ Buka</div>
+
+                            <!-- OPEN / CLOSED BADGE -->
+                            {% if restaurant.is_open == True %}
+                                <div class="opening-badge" style="background:#28a745;">🟢 Buka</div>
+                            {% elif restaurant.is_open == False %}
+                                <div class="opening-badge" style="background:#dc3545;">🔴 Tutup</div>
+                            {% else %}
+                                <div class="opening-badge" style="background:#888;">⏱️ Jam tidak tersedia</div>
+                            {% endif %}
                         </div>
                         
                         <!-- Card Info -->
@@ -143,6 +152,7 @@
                                 <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" onclick="return confirm('Yakin menghapus restoran ini?');">Hapus</a>
                             {% endif %}
                         </div>
+
                     </div>
                 {% endfor %}
             </div>
@@ -162,8 +172,8 @@
     {% endif %}
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+
     <script>
-        // Auto-hide popup after 3 seconds
         const popup = document.getElementById('popupMessage');
         if (popup) {
             setTimeout(() => {
@@ -171,5 +181,6 @@
             }, 3000);
         }
     </script>
+
 </body>
 </html>

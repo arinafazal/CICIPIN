@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Restoran - CICIPIN</title>
+    <title>Tambah Restoran - Cicipin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
     <!-- header -->
     <header>
         <div class="logo">
-            <div class="logo-text">🐱 CICIPIN</div>
+            <div class="logo-text">🐱 Cicipin</div>
         </div>
         <div class="user-menu">
             <span>{{ username }}</span>
@@ -20,7 +21,9 @@
 
     <div class="detail-container" style="padding-top:40px;">
         <div class="detail-section">
+
             <h2>Tambah Restoran Baru</h2>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="popup {{ messages[0][0] }} show" id="popupMessage">
@@ -28,51 +31,85 @@
                     </div>
                 {% endif %}
             {% endwith %}
+
             <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
+
                 <div class="form-group">
                     <label>Nama Restoran:</label>
                     <input type="text" name="name" required>
                 </div>
+
+                <!-- PERBAIKAN KATEGORI -->
                 <div class="form-group">
                     <label>Kategori:</label>
-                    <input type="text" name="category" required>
+                    <select name="category" required>
+
+                        <option value="">Pilih kategori</option>
+
+                        <option value="Indonesia">Indonesia</option>
+                        <option value="Jepang">Jepang</option>
+                        <option value="Italia">Italia</option>
+                        <option value="Kafe">Kafe</option>
+                        <option value="Korea">Korea</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Western">Western</option>
+
+                    </select>
                 </div>
+
                 <div class="form-group">
                     <label>Alamat:</label>
                     <input type="text" name="address" required>
                 </div>
+
                 <div class="form-group">
                     <label>Jam Buka (opsional):</label>
-                    <input type="text" name="opening_hours" placeholder="10:00 - 22:00">
+                    <input type="text" name="opening_hours" placeholder="08:00-22:00">
+                    <small style="color:#666;">
+                        Format: HH:MM-HH:MM (contoh: 08:00-22:00)
+                    </small>
                 </div>
+
                 <div class="form-group">
                     <label>Latitude:</label>
                     <input type="number" name="latitude" step="any" placeholder="-6.2088" required>
-                    <small style="color:#666;">Copy dari Google Maps: klik kanan lokasi > "What's here?" > koordinat muncul di search bar</small>
+                    <small style="color:#666;">
+                        Copy dari Google Maps: klik kanan lokasi > "What's here?" > koordinat muncul di search bar
+                    </small>
                 </div>
+
                 <div class="form-group">
                     <label>Longitude:</label>
                     <input type="number" name="longitude" step="any" placeholder="106.8456" required>
                 </div>
+
                 <div class="form-group">
                     <label>Price Range (e.g., Rp 10.000 - 50.000):</label>
                     <input type="text" name="price_range" required>
                 </div>
+
                 <div class="form-group">
                     <label>Upload Foto Restoran (opsional):</label>
                     <input type="file" name="image" accept="image/*">
                 </div>
+
                 <button type="submit" class="btn">Tambah Restoran</button>
+
             </form>
+
             <div class="auth-link" style="margin-top:20px;">
                 <a href="{{ url_for('index') }}">Kembali ke daftar restoran</a>
             </div>
+
         </div>
     </div>
 
     <script>
         const popup = document.getElementById('popupMessage');
-        if(popup){ setTimeout(()=>popup.classList.remove('show'),3000); }
+        if(popup){
+            setTimeout(()=>popup.classList.remove('show'),3000);
+        }
     </script>
+
 </body>
 </html>

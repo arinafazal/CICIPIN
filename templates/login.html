@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - CICIPIN</title>
+    <title>Masuk - Cicipin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body style="background-color: var(--cream-bg); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-    <!-- Flash Message for Notifications -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
