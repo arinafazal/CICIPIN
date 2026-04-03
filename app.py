@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
+import math  # TAMBAHAN UNTUK FITUR JARAK
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -160,7 +161,17 @@ def compute_open_status(restaurant):
 
     return restaurant
 
-def search_restaurants(search_term=None, min_rating=None, max_price=None):
+# --- FITUR BARU: FUNGSI MENGHITUNG JARAK ---
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0 # Radius bumi dalam kilometer
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+# --- REVISI: DITAMBAHKAN PARAMETER FILTER ---
+def search_restaurants(search_term=None, min_rating=None, max_price=None, sort_by=None, user_lat=None, user_lon=None):
 
     query = {}
 
@@ -176,11 +187,30 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None):
         compute_average_rating(restaurant)
         compute_open_status(restaurant)
 
+        # Hitung jumlah review untuk filter Terlaris
+        restaurant['review_count'] = len(restaurant.get('reviews', []))
+
+        # Hitung jarak jika koordinat user berhasil diambil dari browser
+        if user_lat and user_lon and restaurant.get('latitude') and restaurant.get('longitude'):
+            restaurant['distance'] = haversine(float(user_lat), float(user_lon), float(restaurant['latitude']), float(restaurant['longitude']))
+            restaurant['distance_str'] = f"{restaurant['distance']:.1f} km"
+        else:
+            restaurant['distance'] = float('inf')
+            restaurant['distance_str'] = ""
+
         if min_rating is not None:
             if restaurant['average_rating'] is None or restaurant['average_rating'] < min_rating:
                 continue
 
         result.append(restaurant)
+
+    # Logika Pengurutan (Sorting / Filter)
+    if sort_by == 'rating':
+        result.sort(key=lambda x: x.get('average_rating') or 0, reverse=True)
+    elif sort_by == 'terlaris':
+        result.sort(key=lambda x: x.get('review_count') or 0, reverse=True)
+    elif sort_by == 'jarak' and user_lat and user_lon:
+        result.sort(key=lambda x: x.get('distance'))
 
     return result
 
@@ -196,15 +226,27 @@ def index():
     min_rating = request.args.get("min_rating")
     max_price = request.args.get("max_price")
 
+    # REVISI: Ambil parameter dari URL untuk Filter
+    sort_by = request.args.get("sort_by")
+    user_lat = request.args.get("user_lat")
+    user_lon = request.args.get("user_lon")
+
     min_rating = float(min_rating) if min_rating else None
     max_price = float(max_price) if max_price else None
 
-    restaurants = search_restaurants(category, min_rating, max_price)
+    # REVISI: Masukkan parameter sort ke pencarian
+    restaurants = search_restaurants(category, min_rating, max_price, sort_by, user_lat, user_lon)
+
+    # REVISI: Ambil restoran apa saja yang sudah di-save user ini untuk To-Go List
+    user_wishlist = list(db.wishlists.find({"user_id": session["user_id"]}))
+    saved_restaurant_ids = [str(w["restaurant_id"]) for w in user_wishlist]
 
     return render_template(
         'index.html',
         restaurants=restaurants,
-        username=session["username"]
+        username=session["username"],
+        saved_restaurant_ids=saved_restaurant_ids, # Dikirim ke HTML
+        sort_by=sort_by # Dikirim ke HTML
     )
 
 
@@ -399,6 +441,47 @@ def logout():
     flash('You have successfully logged out.', 'success')
 
     return redirect(url_for('login'))
+
+
+# --- FITUR BARU: ROUTE UNTUK MENYIMPAN TO-GO LIST ---
+@app.route('/toggle_wishlist', methods=['POST'])
+def toggle_wishlist():
+    if "user_id" not in session:
+        return {"success": False, "message": "Unauthorized"}, 401
+
+    data = request.json
+    restaurant_id = data.get("restaurant_id")
+
+    existing = db.wishlists.find_one({"user_id": session["user_id"], "restaurant_id": ObjectId(restaurant_id)})
+
+    if existing:
+        db.wishlists.delete_one({"_id": existing["_id"]})
+        is_saved = False
+    else:
+        db.wishlists.insert_one({"user_id": session["user_id"], "restaurant_id": ObjectId(restaurant_id)})
+        is_saved = True
+
+    return {"success": True, "is_saved": is_saved}
+
+
+# --- FITUR BARU: ROUTE UNTUK HALAMAN DAFTAR TO-GO LIST ---
+@app.route('/wishlist')
+def wishlist():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    wishlist_docs = list(db.wishlists.find({"user_id": session["user_id"]}))
+    restaurant_ids = [w["restaurant_id"] for w in wishlist_docs]
+
+    restaurants = list(db.restaurants.find({"_id": {"$in": restaurant_ids}}))
+
+    for r in restaurants:
+        compute_average_rating(r)
+        compute_open_status(r)
+
+    saved_restaurant_ids = [str(i) for i in restaurant_ids]
+
+    return render_template('wishlist.html', restaurants=restaurants, username=session["username"], saved_restaurant_ids=saved_restaurant_ids)
 
 
 if __name__ == '__main__':
