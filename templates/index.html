@@ -18,6 +18,8 @@
         </div>
         <div class="user-menu">
             <span>{{ username }}</span>
+            <!-- TOMBOL FITUR BARU: TO-GO LIST -->
+            <a href="{{ url_for('wishlist') }}" class="btn btn-secondary" style="padding: 5px 12px; margin-right: 10px; background: white; color: black; border-radius: 20px; font-weight: bold; border: 1px solid #ddd;">❤️ To-Go List</a>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
     </header>
@@ -41,6 +43,13 @@
                 value="{{ request.args.get('category', '') }}">
             <button type="submit">Cari</button>
         </form>
+
+        <!-- FITUR BARU: FILTER SORTING BAR -->
+        <div class="filter-bar" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" onclick="applySort('terlaris')" class="btn {% if sort_by == 'terlaris' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">🔥 Terlaris</button>
+            <button type="button" onclick="applySort('rating')" class="btn {% if sort_by == 'rating' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">⭐ Top Rating</button>
+            <button type="button" onclick="applySort('jarak')" class="btn {% if sort_by == 'jarak' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">📍 Jarak Terdekat</button>
+        </div>
     </section>
 
     <section class="category-section">
@@ -108,6 +117,16 @@
 
                 <div style="position: relative;">
 
+                    <!-- FITUR BARU: TOMBOL WISHLIST / SAVE LATER -->
+                    <button onclick="toggleWishlist('{{ restaurant['_id'] }}', this)" 
+                            style="position: absolute; top: 10px; right: 10px; background: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                        {% if restaurant['_id']|string in saved_restaurant_ids %}
+                            ❤️
+                        {% else %}
+                            🤍
+                        {% endif %}
+                    </button>
+
                     {% if restaurant['image_url'] %}
                     <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
                     {% else %}
@@ -148,6 +167,11 @@
                     <p>
                         <span class="location-icon">📍</span>
                         {{ restaurant['address'] }}
+                        
+                        <!-- FITUR BARU: TAMPILAN KILOMETER -->
+                        {% if restaurant.get('distance_str') %}
+                            <br><small style="color: #666; font-weight: 600; margin-left: 25px;">({{ restaurant['distance_str'] }})</small>
+                        {% endif %}
                     </p>
 
                     <p>
@@ -220,6 +244,55 @@
             setTimeout(() => {
                 popup.classList.remove('show');
             }, 3000);
+        }
+
+        // --- SCRIPT FITUR BARU: LOGIKA FILTER & WISHLIST ---
+        function applySort(sortType) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('sort_by', sortType);
+
+            if (sortType === 'jarak') {
+                // Meminta akses lokasi dari browser pengguna
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        urlParams.set('user_lat', position.coords.latitude);
+                        urlParams.set('user_lon', position.coords.longitude);
+                        window.location.search = urlParams.toString(); // Reload halaman dengan filter
+                    }, () => {
+                        alert("Akses lokasi ditolak. Cicipin tidak dapat mengurutkan berdasarkan jarak.");
+                        urlParams.delete('user_lat');
+                        urlParams.delete('user_lon');
+                        window.location.search = urlParams.toString();
+                    });
+                } else {
+                    alert("Browser Anda tidak mendukung geolokasi.");
+                }
+            } else {
+                urlParams.delete('user_lat');
+                urlParams.delete('user_lon');
+                window.location.search = urlParams.toString();
+            }
+        }
+
+        async function toggleWishlist(restaurantId, btn) {
+            try {
+                // Kirim request ke backend tanpa refresh halaman (AJAX)
+                const response = await fetch('/toggle_wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ restaurant_id: restaurantId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Ubah icon hati sesuai status
+                    btn.innerText = data.is_saved ? '❤️' : '🤍';
+                } else {
+                    alert("Gagal menyimpan. Silakan pastikan Anda sudah login.");
+                }
+            } catch (error) {
+                console.error("Error toggling wishlist:", error);
+            }
         }
     </script>
 
