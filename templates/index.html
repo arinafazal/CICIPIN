@@ -12,10 +12,10 @@
 <body>
 
     <header>
-        <div class="logo">
+        <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none;">
             <div class="logo-text">🐱 Cicipin</div>
             <div class="tagline">Review makanan ala kucing! 🍽️</div>
-        </div>
+        </a>
         <div class="user-menu">
             <span>{{ username }}</span>
             <!-- TOMBOL FITUR BARU: TO-GO LIST -->
@@ -49,6 +49,10 @@
             <button type="button" onclick="applySort('terlaris')" class="btn {% if sort_by == 'terlaris' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">🔥 Terlaris</button>
             <button type="button" onclick="applySort('rating')" class="btn {% if sort_by == 'rating' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">⭐ Top Rating</button>
             <button type="button" onclick="applySort('jarak')" class="btn {% if sort_by == 'jarak' %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">📍 Jarak Terdekat</button>
+<<<<<<< HEAD
+=======
+            <a href="{{ url_for('wishlist') }}" class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px; border-radius: 20px;">❤️ To-Go List</a>
+>>>>>>> 66b299f (Ready for Vercel deployment)
         </div>
     </section>
 
@@ -117,9 +121,15 @@
 
                 <div style="position: relative;">
 
+<<<<<<< HEAD
                     <!-- FITUR BARU: TOMBOL WISHLIST / SAVE LATER -->
                     <button onclick="toggleWishlist('{{ restaurant['_id'] }}', this)" 
                             style="position: absolute; top: 10px; right: 10px; background: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+=======
+                    <!-- LEFT: HEART BUTTON FOR TO-DO-LIST -->
+                    <button class="wishlist-btn" data-id="{{ restaurant['_id'] }}"
+                            style="position: absolute; top: 12px; left: 12px; background: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10;">
+>>>>>>> 66b299f (Ready for Vercel deployment)
                         {% if restaurant['_id']|string in saved_restaurant_ids %}
                             ❤️
                         {% else %}
@@ -187,23 +197,19 @@
 
                 <div class="card-buttons">
 
-                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn">
-                        Buka
-                    </a>
-
                     {% if username != 'admin' %}
-                    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">
+                    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary" style="flex: 1;">
                         Review
                     </a>
                     {% endif %}
 
                     {% if username == 'admin' %}
                     <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}"
-                        class="btn btn-secondary">
+                        class="btn btn-secondary" style="flex: 1;">
                         Edit
                     </a>
 
-                    <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger"
+                    <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" style="flex: 1;"
                         onclick="return confirm('Yakin menghapus restoran ini?');">
                         Hapus
                     </a>
@@ -246,6 +252,7 @@
             }, 3000);
         }
 
+<<<<<<< HEAD
         // --- SCRIPT FITUR BARU: LOGIKA FILTER & WISHLIST ---
         function applySort(sortType) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -277,6 +284,17 @@
         async function toggleWishlist(restaurantId, btn) {
             try {
                 // Kirim request ke backend tanpa refresh halaman (AJAX)
+=======
+        // Wishlist button click handler
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                toggleWishlist(this.dataset.id, this);
+            });
+        });
+
+        async function toggleWishlist(restaurantId, btn) {
+            try {
+>>>>>>> 66b299f (Ready for Vercel deployment)
                 const response = await fetch('/toggle_wishlist', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -285,7 +303,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
+<<<<<<< HEAD
                     // Ubah icon hati sesuai status
+=======
+>>>>>>> 66b299f (Ready for Vercel deployment)
                     btn.innerText = data.is_saved ? '❤️' : '🤍';
                 } else {
                     alert("Gagal menyimpan. Silakan pastikan Anda sudah login.");

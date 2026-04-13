@@ -12,13 +12,13 @@
 <body>
 
     <header>
-        <div class="logo">
+        <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none;">
             <div class="logo-text">🐱 Cicipin</div>
             <div class="tagline">Review makanan ala kucing! 🍽️</div>
-        </div>
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary" style="padding: 5px 12px; background: white; color: black; border-radius: 20px; font-weight: bold; border: 1px solid #ddd;">🏠 Beranda</a>
         <div class="user-menu">
             <span>{{ username }}</span>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary" style="padding: 5px 12px; margin-right: 10px; background: white; color: black; border-radius: 20px; font-weight: bold; border: 1px solid #ddd;">🏠 Beranda</a>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
     </header>
@@ -51,15 +51,21 @@
 
                 <div style="position: relative;">
 
-                    <!-- Tombol Hati (Klik untuk menghapus) -->
-                    <button onclick="toggleWishlist('{{ restaurant['_id'] }}', this)" 
-                            style="position: absolute; top: 10px; right: 10px; background: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                    <!-- LEFT: HEART BUTTON FOR TO-DO-LIST -->
+                    <button class="wishlist-btn" data-id="{{ restaurant['_id'] }}"
+                            style="position: absolute; top: 12px; left: 12px; background: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10;">
                         {% if restaurant['_id']|string in saved_restaurant_ids %}
                             ❤️
                         {% else %}
                             🤍
                         {% endif %}
                     </button>
+
+                    <!-- RIGHT: BUKA BUTTON -->
+                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn" 
+                       style="position: absolute; top: 12px; right: 12px; padding: 10px 20px; font-size: 14px; white-space: nowrap; margin: 0; font-weight: 600; z-index: 10;">
+                        Buka
+                    </a>
 
                     {% if restaurant['image_url'] %}
                     <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
@@ -99,7 +105,6 @@
                 </div>
 
                 <div class="card-buttons">
-                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn">Buka</a>
                     <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Review</a>
                 </div>
 
@@ -130,6 +135,13 @@
             }, 3000);
         }
 
+        // Wishlist button click handler
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                toggleWishlist(this.dataset.id, this);
+            });
+        });
+
         async function toggleWishlist(restaurantId, btn) {
             try {
                 const response = await fetch('/toggle_wishlist', {
@@ -158,4 +170,5 @@
         }
     </script>
 </body>
+
 </html>

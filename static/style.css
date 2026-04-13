@@ -29,14 +29,21 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.92);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(4px);
 }
 
 header .logo {
     display: flex;
     align-items: center;
     gap: 10px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+header .logo:hover {
+    opacity: 0.8;
 }
 
 header .logo img {
