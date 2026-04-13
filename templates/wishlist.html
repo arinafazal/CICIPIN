@@ -16,7 +16,6 @@
             <div class="logo-text">🐱 Cicipin</div>
             <div class="tagline">Review makanan ala kucing! 🍽️</div>
         </a>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary" style="padding: 5px 12px; background: white; color: black; border-radius: 20px; font-weight: bold; border: 1px solid #ddd;">🏠 Beranda</a>
         <div class="user-menu">
             <span>{{ username }}</span>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
@@ -60,12 +59,6 @@
                             🤍
                         {% endif %}
                     </button>
-
-                    <!-- RIGHT: BUKA BUTTON -->
-                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn" 
-                       style="position: absolute; top: 12px; right: 12px; padding: 10px 20px; font-size: 14px; white-space: nowrap; margin: 0; font-weight: 600; z-index: 10;">
-                        Buka
-                    </a>
 
                     {% if restaurant['image_url'] %}
                     <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
