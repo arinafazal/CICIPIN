@@ -12,7 +12,7 @@ from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
-import math  # TAMBAHAN UNTUK FITUR JARAK
+import math
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -417,6 +417,13 @@ def add_review(restaurant_id):
 
 @app.route('/restaurant/<restaurant_id>')
 def restaurant_detail(restaurant_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if restaurants_collection is None:
+        flash('Database connection failed', 'danger')
+        return redirect(url_for('index'))
 
     restaurant = restaurants_collection.find_one({
         "_id": ObjectId(restaurant_id)
