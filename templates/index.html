@@ -183,7 +183,7 @@
 
                     {% if username != 'admin' %}
                     <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary" style="flex: 1;">
-                        Buka
+                        Detail
                     </a>
                     <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary" style="flex: 1;">
                         Review
