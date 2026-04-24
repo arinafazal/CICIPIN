@@ -113,7 +113,6 @@ CICIPIN/
 ├── requirements.txt     # Python dependencies
 ├── vercel.json         # Vercel config
 ├── .env                # Environment variables (local only)
-├── .env.example        # Template for env variables
 └── .vercelignore       # Files to ignore on deployment
 ```
 
