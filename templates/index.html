@@ -13,19 +13,22 @@
     <header>
         <div class="header-inner">
             <a href="{{ url_for('index') }}" class="logo">
-                <div class="logo-mark">C</div>
-                <div class="logo-text">CICIPIN</div>
+                <div class="logo-mark">
+                    <img src="{{ url_for('static', filename='favicon.jpg') }}" alt="C" />
+                </div>
+                <div class="logo-text">Cicipin</div>
             </a>
 
             <nav class="nav-links">
                 <a href="{{ url_for('index') }}" class="nav-link active">Beranda</a>
-                <a href="{{ url_for('wishlist') }}" class="nav-link">To-Go List</a>
+                {% if is_authenticated %}
+                <span class="user-name">Hi, {{ username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Keluar</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="nav-link">Masuk</a>
+                <a href="{{ url_for('register') }}" class="nav-link">Daftar</a>
+                {% endif %}
             </nav>
-
-            <div class="user-menu">
-                <span>{{ username }}</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
-            </div>
         </div>
     </header>
 
@@ -41,92 +44,82 @@
 
     <main>
         <section class="hero-section">
-            <div class="hero-inner">
-                <div class="hero-copy">
-                    <h1>Cari, Kekinian, dan Lezat</h1>
-                    <p>Temukan restoran terbaik berdasarkan review kucing pecinta kuliner.</p>
+            <div class="hero-copy">
+                <span class="hero-top-badge">10.000+ Ulasan Jujur dari Seluruh Indonesia</span>
+                <h1>Temukan & Ulas Kuliner Terbaik</h1>
+                <p>Baca ulasan jujur, beri rating, dan bagikan pengalamanmu makan di restoran favoritmu</p>
 
-                    <form method="GET" class="search-card">
-                        <input type="text" name="category" placeholder="Cari restoran, kategori, atau lokasi..."
-                            value="{{ request.args.get('category', '') }}">
-                        <button type="submit" class="btn btn-primary">Cari</button>
-                    </form>
+                <form method="GET" class="hero-search-form">
+                    <input type="text" name="category" placeholder="Cari restoran, jenis masakan, lokasi..."
+                        value="{{ request.args.get('category', '') }}">
+                    <button type="submit" class="btn btn-primary">Cari</button>
+                </form>
+
+                <div class="hero-tag-list">
+                    <a href="{{ url_for('index', category='Nasi Padang') }}" class="tag-chip">Nasi Padang</a>
+                    <a href="{{ url_for('index', category='Bakmi') }}" class="tag-chip">Bakmi</a>
+                    <a href="{{ url_for('index', category='Kafe') }}" class="tag-chip">Kafe</a>
+                    <a href="{{ url_for('index', category='Pizza') }}" class="tag-chip">Pizza</a>
+                    <a href="{{ url_for('index', category='Seafood') }}" class="tag-chip">Seafood</a>
                 </div>
+            </div>
 
-                <div class="hero-visual">
-                    <div class="hero-panel">
-                        <h2>Sortir Cepat</h2>
-                        <p>Pilih cara sorting yang paling cocok untuk mencari restoran favoritmu.</p>
-
-                        <div class="filter-pill-row">
-                            <button type="button" onclick="applySort('terlaris')"
-                                class="filter-pill {% if sort_by == 'terlaris' %}active{% endif %}">🔥
-                                Terlaris</button>
-                            <button type="button" onclick="applySort('rating')"
-                                class="filter-pill {% if sort_by == 'rating' %}active{% endif %}">⭐ Top
-                                Rating</button>
-                            <button type="button" onclick="applySort('jarak')"
-                                class="filter-pill {% if sort_by == 'jarak' %}active{% endif %}">📍 Jarak
-                                Terdekat</button>
-                        </div>
-                    </div>
+            <div class="hero-stats-row">
+                <div class="stat-card hero-stat-card">
+                    <span>10K+</span>
+                    <p>Restoran</p>
+                </div>
+                <div class="stat-card hero-stat-card">
+                    <span>500K+</span>
+                    <p>Ulasan</p>
+                </div>
+                <div class="stat-card hero-stat-card">
+                    <span>50+</span>
+                    <p>Kota</p>
                 </div>
             </div>
         </section>
 
-        <section class="section category-section">
-            <div class="section-header">
-                <h2><span class="category-icon">🍽️</span> Kategori Makanan</h2>
-                <p>Pilih jenis kuliner yang kamu suka.</p>
+        <section class="filter-section">
+            <div class="category-pill-grid">
+                <a href="{{ url_for('index', category='semua') }}"
+                    class="category-pill {% if request.args.get('category', '') in ['', 'semua'] %}active{% endif %}">Semua</a>
+                <a href="{{ url_for('index', category='Indonesia') }}"
+                    class="category-pill {% if request.args.get('category') == 'Indonesia' %}active{% endif %}">Indonesia</a>
+                <a href="{{ url_for('index', category='Jepang') }}"
+                    class="category-pill {% if request.args.get('category') == 'Jepang' %}active{% endif %}">Jepang</a>
+                <a href="{{ url_for('index', category='Italia') }}"
+                    class="category-pill {% if request.args.get('category') == 'Italia' %}active{% endif %}">Italia</a>
+                <a href="{{ url_for('index', category='Chinese') }}"
+                    class="category-pill {% if request.args.get('category') == 'Chinese' %}active{% endif %}">Chinese</a>
+                <a href="{{ url_for('index', category='Seafood') }}"
+                    class="category-pill {% if request.args.get('category') == 'Seafood' %}active{% endif %}">Seafood</a>
+                <a href="{{ url_for('index', category='Kafe') }}"
+                    class="category-pill {% if request.args.get('category') == 'Kafe' %}active{% endif %}">Kafe</a>
+                <a href="{{ url_for('index', category='Street Food') }}"
+                    class="category-pill {% if request.args.get('category') == 'Street Food' %}active{% endif %}">Street Food</a>
             </div>
 
-            <div class="category-grid">
-                <a href="{{ url_for('index', category='semua') }}" class="category-item">
-                    <div class="category-icon-lg">😸</div>
-                    <div>Semua</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Indonesia') }}" class="category-item">
-                    <div class="category-icon-lg">🍲</div>
-                    <div>Indonesia</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Jepang') }}" class="category-item">
-                    <div class="category-icon-lg">🍱</div>
-                    <div>Jepang</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Italia') }}" class="category-item">
-                    <div class="category-icon-lg">🍕</div>
-                    <div>Italia</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Kafe') }}" class="category-item">
-                    <div class="category-icon-lg">☕</div>
-                    <div>Kafe</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Korea') }}" class="category-item">
-                    <div class="category-icon-lg">🍖</div>
-                    <div>Korea</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Chinese') }}" class="category-item">
-                    <div class="category-icon-lg">🥢</div>
-                    <div>Chinese</div>
-                </a>
-
-                <a href="{{ url_for('index', category='Western') }}" class="category-item">
-                    <div class="category-icon-lg">🍔</div>
-                    <div>Western</div>
-                </a>
+            <div class="filter-tools">
+                <button type="button" class="filter-button">
+                    <span>Filter</span>
+                    <span class="filter-count">1</span>
+                </button>
+                <div class="sort-field">
+                    <label for="sort_by">Urutkan</label>
+                    <select id="sort_by" name="sort_by" onchange="applySort(this.value)">
+                        <option value="" {% if not sort_by %}selected{% endif %}>Semua</option>
+                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Top Rating</option>
+                        <option value="terlaris" {% if sort_by == 'terlaris' %}selected{% endif %}>Terlaris</option>
+                        <option value="jarak" {% if sort_by == 'jarak' %}selected{% endif %}>Jarak</option>
+                    </select>
+                </div>
             </div>
         </section>
 
         <section class="restaurant-list section">
-            <div class="section-header">
-                <h2><span class="category-icon">🍽️</span> Restoran Pilihan</h2>
-                <p>{{ restaurants | length }} hasil ditemukan</p>
+            <div class="results-info">
+                {{ restaurants | length }} restoran ditemukan{% if request.args.get('category') %} untuk '{{ request.args.get('category') }}'{% endif %}
             </div>
 
             {% if restaurants %}
@@ -143,56 +136,35 @@
                         <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}"
                             class="restaurant-image">
                         {% else %}
-                        <div style="width:100%;height:240px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;color:#9CA3AF;">
-                            No Image
-                        </div>
+                        <div class="image-placeholder">No Image</div>
                         {% endif %}
 
                         {% if restaurant.is_open == True %}
                         <div class="opening-badge">🟢 Buka</div>
                         {% elif restaurant.is_open == False %}
-                        <div class="opening-badge" style="background:#DC2626;">🔴 Tutup</div>
+                        <div class="opening-badge closed">🔴 Tutup</div>
                         {% else %}
-                        <div class="opening-badge" style="background:#6B7280;">⏱️ Jam tidak tersedia</div>
+                        <div class="opening-badge unknown">⏱️ Jam tidak tersedia</div>
                         {% endif %}
                     </div>
 
                     <div class="card-info">
+                        <div class="card-top-row">
+                            <div>
+                                <span class="tag-pill">Unggulan</span>
+                            </div>
+                            <span class="review-count-small">{{ restaurant['reviews'] | length }} ulasan</span>
+                        </div>
+
                         <h4>{{ restaurant['name'] }}</h4>
+                        <p class="card-subtitle">{{ restaurant.get('category','N/A') }} · {{ restaurant['address'] }}</p>
 
-                        <div class="rating-section">
-                            {% if restaurant.average_rating is not none %}
-                            <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
-                            {% else %}
-                            <div class="rating-badge" style="opacity:0.6;">--</div>
-                            {% endif %}
-                            <div class="review-count">({{ restaurant['reviews'] | length }} review)</div>
-                        </div>
-
-                        <div class="card-details">
-                            <p><span class="location-icon">📍</span>{{ restaurant['address'] }}</p>
-                            <p><span class="food-icon">🍽️</span>{{ restaurant.get('category','N/A') }}</p>
+                        <div class="card-meta-row">
+                            <span class="rating-badge">⭐ {{ restaurant.average_rating or '-' }}</span>
                             {% if restaurant.get('price_range') %}
-                            <p class="price">Rp {{ restaurant.get('price_range','N/A') }}</p>
+                            <span class="price-tag">Rp {{ restaurant.get('price_range') }}</span>
                             {% endif %}
                         </div>
-                    </div>
-
-                    <div class="card-buttons">
-                        {% if username != 'admin' %}
-                        <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}"
-                            class="btn btn-secondary">Detail</a>
-                        <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}"
-                            class="btn btn-secondary">Review</a>
-                        {% endif %}
-
-                        {% if username == 'admin' %}
-                        <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}"
-                            class="btn btn-secondary">Edit</a>
-                        <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}"
-                            class="btn btn-danger"
-                            onclick="return confirm('Yakin menghapus restoran ini?');">Hapus</a>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
