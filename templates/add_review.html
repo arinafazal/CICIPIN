@@ -1,5 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,46 +8,58 @@
     <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='favicon.jpg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <!-- header -->
     <header>
-        <div class="logo">
-            <div class="logo-text">🐱 Cicipin</div>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                <div class="logo-mark">C</div>
+                <div class="logo-text">Cicipin</div>
+            </a>
         </div>
     </header>
 
-    <div class="detail-container" style="padding-top: 40px;">
-        <div class="review-form">
-            <h3>Tambah Review untuk <strong>{{ restaurant['name'] }}</strong></h3>
-            {% with messages = get_flashed_messages(with_categories=true) %}
+    <main>
+        <div class="form-container">
+            <div class="form-section">
+                <h2>Tambah Review untuk <strong>{{ restaurant['name'] }}</strong></h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="popup {{ messages[0][0] }} show" id="popupMessage">
-                        {{ messages[0][1] }}
-                    </div>
+                {% for category, message in messages %}
+                <div class="popup {{ category }} show" id="popupMessage">
+                    <p id="popupText">{{ message }}</p>
+                </div>
+                {% endfor %}
                 {% endif %}
-            {% endwith %}
-            <form method="POST" enctype="multipart/form-data">
-                <div class="star-rating">
-                    {% for i in range(1,6) %}
-                    <span class="star" data-value="{{ i }}">★</span>
-                    {% endfor %}
-                    <input type="hidden" name="rating" id="rating-input">
-                </div>
-                <textarea name="comment" placeholder="Ceritakan pengalaman kamu di sini..." required></textarea>
+                {% endwith %}
 
-                <div class="form-group" style="margin-top:15px;">
-                    <label>Upload Gambar (opsional):</label>
-                    <input type="file" name="image" accept="image/*">
-                </div>
+                <form action="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" method="POST" enctype="multipart/form-data">
+                    <div class="star-rating">
+                        {% for i in range(1,6) %}
+                        <span class="star" data-value="{{ i }}">★</span>
+                        {% endfor %}
+                        <input type="hidden" name="rating" id="rating-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Komentar</label>
+                        <textarea name="comment" placeholder="Ceritakan pengalaman kamu di sini..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Gambar (opsional)</label>
+                        <input type="file" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Kirim Review</button>
+                </form>
 
-                <button type="submit">Kirim Review</button>
-            </form>
-            <div class="auth-link" style="text-align:center; margin-top:20px;">
-                <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}">Kembali ke detail restoran</a>
+                <div class="auth-link" style="text-align:center; margin-top:20px;">
+                    <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}">Kembali ke detail restoran</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
         const stars = document.querySelectorAll('.star');
         const ratingInput = document.getElementById('rating-input');
@@ -59,9 +72,7 @@
                 });
             });
         });
-
-        const popup = document.getElementById('popupMessage');
-        if(popup){ setTimeout(()=>popup.classList.remove('show'),3000); }
     </script>
 </body>
+
 </html>

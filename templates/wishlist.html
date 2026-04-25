@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -10,19 +10,19 @@
 </head>
 
 <body>
-
     <header>
-        <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none;">
-            <div class="logo-text">🐱 Cicipin</div>
-            <div class="tagline">Review makanan ala kucing! 🍽️</div>
-        </a>
-        <div class="user-menu">
-            <span>{{ username }}</span>
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                <div class="logo-mark">C</div>
+                <div class="logo-text">Cicipin</div>
+            </a>
+            <div class="user-menu">
+                <span>{{ username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            </div>
         </div>
     </header>
 
-    <!-- Menampilkan pesan pop-up jika ada -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
@@ -33,102 +33,77 @@
     {% endif %}
     {% endwith %}
 
-    <section class="restaurant-list" style="margin-top: 40px;">
-
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="font-size: 28px;">❤️ To-Go List Saya</h2>
-            <p style="color: #666;">Daftar restoran yang ingin kamu kunjungi nanti</p>
-        </div>
-
-        {% if restaurants %}
-
-        <div class="restaurant-cards">
-
-            {% for restaurant in restaurants %}
-
-            <div class="restaurant-card" id="card-{{ restaurant['_id'] }}" style="transition: opacity 0.3s ease;">
-
-                <div style="position: relative;">
-
-                    <!-- LEFT: HEART BUTTON FOR TO-DO-LIST -->
-                    <button class="wishlist-btn" data-id="{{ restaurant['_id'] }}"
-                            style="position: absolute; top: 12px; left: 12px; background: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10;">
-                        {% if restaurant['_id']|string in saved_restaurant_ids %}
-                            ❤️
-                        {% else %}
-                            🤍
-                        {% endif %}
-                    </button>
-
-                    {% if restaurant['image_url'] %}
-                    <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}" class="restaurant-image">
-                    {% else %}
-                    <div style="width:100%;height:250px;background:#DDD;display:flex;align-items:center;justify-content:center;color:#999;">
-                        No Image
-                    </div>
-                    {% endif %}
-
-                    {% if restaurant.is_open == True %}
-                    <div class="opening-badge" style="background:#28a745;">🟢 Buka</div>
-                    {% elif restaurant.is_open == False %}
-                    <div class="opening-badge" style="background:#dc3545;">🔴 Tutup</div>
-                    {% else %}
-                    <div class="opening-badge" style="background:#888;">⏱️ Jam tidak tersedia</div>
-                    {% endif %}
-
-                </div>
-
-                <div class="card-info">
-                    <h4>{{ restaurant['name'] }}</h4>
-                    <div class="rating-section">
-                        {% if restaurant.average_rating is not none %}
-                        <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
-                        {% else %}
-                        <div class="rating-badge" style="opacity:0.6;">--</div>
-                        {% endif %}
-                        <div class="review-count">({{ restaurant['reviews'] | length }} review)</div>
-                    </div>
-
-                    <p><span class="location-icon">📍</span> {{ restaurant['address'] }}</p>
-                    <p><span class="food-icon">🍽️</span> {{ restaurant.get('category','N/A') }}</p>
-                    
-                    {% if restaurant.get('price_range') %}
-                    <p class="price">Rp {{ restaurant.get('price_range','N/A') }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="card-buttons">
-                    <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Review</a>
-                </div>
-
+    <main>
+        <section class="restaurant-list">
+            <div class="section-header">
+                <h2>❤️ To-Go List Saya</h2>
+                <p>Restoran yang sudah kamu simpan untuk dikunjungi nanti.</p>
             </div>
-            {% endfor %}
 
-        </div>
+            {% if restaurants %}
+            <div class="restaurant-cards">
+                {% for restaurant in restaurants %}
+                <div class="restaurant-card" id="card-{{ restaurant['_id'] }}">
+                    <div class="image-wrap">
+                        <button type="button" class="wishlist-btn saved" data-id="{{ restaurant['_id'] }}">❤️</button>
+                        {% if restaurant['image_url'] %}
+                        <img src="{{ restaurant['image_url'] }}" alt="{{ restaurant['name'] }}"
+                            class="restaurant-image">
+                        {% else %}
+                        <div style="width:100%;height:240px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;color:#9CA3AF;">
+                            No Image
+                        </div>
+                        {% endif %}
 
-        {% else %}
+                        {% if restaurant.is_open == True %}
+                        <div class="opening-badge">🟢 Buka</div>
+                        {% elif restaurant.is_open == False %}
+                        <div class="opening-badge" style="background:#DC2626;">🔴 Tutup</div>
+                        {% else %}
+                        <div class="opening-badge" style="background:#6B7280;">⏱️ Jam tidak tersedia</div>
+                        {% endif %}
+                    </div>
 
-        <div style="text-align:center;padding:60px 20px;color:#999;background:#fcfcfc;border-radius:15px;max-width:500px;margin:0 auto;">
-            <p style="font-size:64px;margin-bottom:15px;">😿</p>
-            <h3 style="color:#333;margin-bottom:10px;">Belum Ada Simpanan</h3>
-            <p>Kamu belum menyimpan restoran satupun di daftar To-Go List. Yuk, cari restoran yang menarik dan klik tombol hatinya!</p>
-            <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 25px; display: inline-block;">Cari Restoran Sekarang</a>
-        </div>
+                    <div class="card-info">
+                        <h4>{{ restaurant['name'] }}</h4>
 
-        {% endif %}
+                        <div class="rating-section">
+                            {% if restaurant.average_rating is not none %}
+                            <div class="rating-badge">⭐ {{ restaurant.average_rating }}</div>
+                            {% else %}
+                            <div class="rating-badge" style="opacity:0.6;">--</div>
+                            {% endif %}
+                            <div class="review-count">({{ restaurant['reviews'] | length }} review)</div>
+                        </div>
 
-    </section>
+                        <div class="card-details">
+                            <p><span class="location-icon">📍</span>{{ restaurant['address'] }}</p>
+                            <p><span class="food-icon">🍽️</span>{{ restaurant.get('category','N/A') }}</p>
+                            {% if restaurant.get('price_range') %}
+                            <p class="price">Rp {{ restaurant.get('price_range','N/A') }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-buttons">
+                        <a href="{{ url_for('add_review', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Review</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p style="font-size:64px;margin-bottom:15px;">😿</p>
+                <h3>Belum Ada Simpanan</h3>
+                <p>Kamu belum menyimpan restoran satupun di daftar To-Go List. Klik tombol hati untuk menyimpan restoran yang kamu suka.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 25px; display: inline-flex;">Cari Restoran Sekarang</a>
+            </div>
+            {% endif %}
+        </section>
+    </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
-        const popup = document.getElementById('popupMessage');
-        if (popup) {
-            setTimeout(() => {
-                popup.classList.remove('show');
-            }, 3000);
-        }
-
-        // Wishlist button click handler
         document.querySelectorAll('.wishlist-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 toggleWishlist(this.dataset.id, this);
@@ -143,22 +118,16 @@
                     body: JSON.stringify({ restaurant_id: restaurantId })
                 });
                 const data = await response.json();
-                
                 if (data.success) {
                     btn.innerText = data.is_saved ? '❤️' : '🤍';
-                    
-                    // Berikan efek transparan (redup) jika user membatalkan save di halaman To-Go List
+                    btn.classList.toggle('saved', data.is_saved);
                     const card = document.getElementById(`card-${restaurantId}`);
-                    if (!data.is_saved) {
-                        card.style.opacity = '0.4';
-                        card.style.filter = 'grayscale(100%)';
-                    } else {
-                        card.style.opacity = '1';
-                        card.style.filter = 'none';
+                    if (card && !data.is_saved) {
+                        card.style.opacity = '0.5';
                     }
                 }
             } catch (error) {
-                console.error("Error:", error);
+                console.error('Error:', error);
             }
         }
     </script>

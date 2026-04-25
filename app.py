@@ -218,9 +218,6 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None, sort_b
 @app.route('/')
 def index():
 
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
     category = request.args.get("category")
 
     min_rating = request.args.get("min_rating")
@@ -237,16 +234,23 @@ def index():
     # REVISI: Masukkan parameter sort ke pencarian
     restaurants = search_restaurants(category, min_rating, max_price, sort_by, user_lat, user_lon)
 
-    # REVISI: Ambil restoran apa saja yang sudah di-save user ini untuk To-Go List
-    user_wishlist = list(db.wishlists.find({"user_id": session["user_id"]}))
-    saved_restaurant_ids = [str(w["restaurant_id"]) for w in user_wishlist]
+    saved_restaurant_ids = []
+    username = None
+    is_authenticated = False
+
+    if "user_id" in session:
+        is_authenticated = True
+        username = session.get("username")
+        user_wishlist = list(db.wishlists.find({"user_id": session["user_id"]}))
+        saved_restaurant_ids = [str(w["restaurant_id"]) for w in user_wishlist]
 
     return render_template(
         'index.html',
         restaurants=restaurants,
-        username=session["username"],
-        saved_restaurant_ids=saved_restaurant_ids, # Dikirim ke HTML
-        sort_by=sort_by # Dikirim ke HTML
+        username=username,
+        saved_restaurant_ids=saved_restaurant_ids,
+        sort_by=sort_by,
+        is_authenticated=is_authenticated
     )
 
 
@@ -418,9 +422,6 @@ def add_review(restaurant_id):
 @app.route('/restaurant/<restaurant_id>')
 def restaurant_detail(restaurant_id):
 
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
     if restaurants_collection is None:
         flash('Database connection failed', 'danger')
         return redirect(url_for('index'))
@@ -434,7 +435,12 @@ def restaurant_detail(restaurant_id):
         compute_average_rating(restaurant)
         compute_open_status(restaurant)
 
-        return render_template('restaurant_detail.html', restaurant=restaurant)
+        return render_template(
+            'restaurant_detail.html',
+            restaurant=restaurant,
+            username=session.get('username'),
+            is_authenticated="user_id" in session
+        )
 
     flash('Restaurant not found', 'error')
     return redirect(url_for('index'))

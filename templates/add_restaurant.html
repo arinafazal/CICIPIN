@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -10,41 +10,39 @@
 </head>
 
 <body>
-
-    <!-- header -->
     <header>
-        <div class="logo">
-            <div class="logo-text">🐱 Cicipin</div>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                <div class="logo-mark">C</div>
+                <div class="logo-text">Cicipin</div>
+            </a>
         </div>
     </header>
 
-    <div class="detail-container" style="padding-top:40px;">
-        <div class="detail-section">
-
+    <div class="form-container">
+        <div class="form-section">
             <h2>Tambah Restoran Baru</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <div class="popup {{ messages[0][0] }} show" id="popupMessage">
-                {{ messages[0][1] }}
+            {% for category, message in messages %}
+            <div class="popup {{ category }} show" id="popupMessage">
+                {{ message }}
             </div>
+            {% endfor %}
             {% endif %}
             {% endwith %}
 
             <form action="{{ url_for('add_restaurant') }}" method="POST" enctype="multipart/form-data">
-
                 <div class="form-group">
                     <label>Nama Restoran:</label>
                     <input type="text" name="name" required>
                 </div>
 
-                <!-- PERBAIKAN KATEGORI -->
                 <div class="form-group">
                     <label>Kategori:</label>
-                    <select name="category" class="form-input">
-
+                    <select name="category" required>
                         <option value="">Pilih kategori</option>
-
                         <option value="Indonesia">Indonesia</option>
                         <option value="Jepang">Jepang</option>
                         <option value="Italia">Italia</option>
@@ -52,7 +50,6 @@
                         <option value="Korea">Korea</option>
                         <option value="Chinese">Chinese</option>
                         <option value="Western">Western</option>
-
                     </select>
                 </div>
 
@@ -64,17 +61,12 @@
                 <div class="form-group">
                     <label>Jam Buka (opsional):</label>
                     <input type="text" name="opening_hours" placeholder="08:00-22:00">
-                    <small style="color:#666;">
-                        Format: HH:MM-HH:MM (contoh: 08:00-22:00)
-                    </small>
+                    <small>Format: HH:MM-HH:MM</small>
                 </div>
 
                 <div class="form-group">
                     <label>Latitude:</label>
                     <input type="number" name="latitude" step="any" placeholder="-6.2088" required>
-                    <small style="color:#666;">
-                        Copy dari Google Maps: klik kanan lokasi > "What's here?" > koordinat muncul di search bar
-                    </small>
                 </div>
 
                 <div class="form-group">
@@ -83,7 +75,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Price Range (e.g., Rp 10.000 - 50.000):</label>
+                    <label>Price Range (contoh: Rp 10.000 - 50.000):</label>
                     <input type="text" name="price_range" required>
                 </div>
 
@@ -92,25 +84,16 @@
                     <input type="file" name="image" accept="image/*">
                 </div>
 
-                <div style="text-align:center;">
-                    <button type="submit" class="btn">Tambah Restoran</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Tambah Restoran</button>
             </form>
 
             <div class="auth-link" style="margin-top:20px;">
                 <a href="{{ url_for('index') }}">Kembali ke daftar restoran</a>
             </div>
-
         </div>
     </div>
 
-    <script>
-        const popup = document.getElementById('popupMessage');
-        if (popup) {
-            setTimeout(() => popup.classList.remove('show'), 3000);
-        }
-    </script>
-
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>

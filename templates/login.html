@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -8,53 +8,63 @@
     <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='favicon.jpg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-{% for category, message in messages %}
-<div class="popup {{ category }} show" id="popupMessage">
-    <p id="popupText">{{ message }}</p>
-</div>
-{% endfor %}
-{% endif %}
-{% endwith %}
 
-<div class="auth-container">
-    <div class="auth-form-box">
-        <h1><span style="font-size: 28px;">🐱</span> Masuk</h1>
-        <p class="auth-tagline">Tempat berbagi review! 🍽️</p>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="logo">
+                <div class="logo-mark">C</div>
+                <div class="logo-text">Cicipin</div>
+            </a>
 
-        <form action="{{ url_for('login') }}" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="kucing123" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
-            </div>
-
-            <button type="submit" class="auth-submit-btn">Masuk Sekarang</button>
-        </form>
-
-        <div class="auth-link">
-            Belum punya akun? <a href="{{ url_for('register') }}">Daftar di sini</a>
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Beranda</a>
+                <a href="{{ url_for('login') }}" class="nav-link">Masuk</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Daftar</a>
+            </nav>
         </div>
+    </header>
 
-        <div class="decorative-icons">🐱 😸 😻</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="popup {{ category }} show" id="popupMessage">
+        <p id="popupText">{{ message }}</p>
     </div>
-</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-<script>
-    // Auto-hide popup after 3 seconds
-    const popup = document.getElementById('popupMessage');
-    if (popup) {
-        setTimeout(() => {
-            popup.classList.remove('show');
-        }, 3000);
-    }
-</script>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo-stack">
+                <div class="logo-mark">C</div>
+                <div class="logo-text">Cicipin</div>
+            </div>
+
+            <h1>Masuk</h1>
+            <p class="auth-tagline">Masuk untuk mulai review restoran favoritmu.</p>
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="kucing123" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Masuk</button>
+            </form>
+
+            <p class="auth-link">Belum punya akun? <a href="{{ url_for('register') }}">Daftar di sini</a></p>
+            <p class="auth-security">Data Anda aman — enkripsi SSL 256-bit</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>

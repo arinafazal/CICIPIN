@@ -15,7 +15,7 @@ Aplikasi web untuk menambah dan meninjau restoran dengan fitur user authenticati
 ### 1. Clone Repository
 ```bash
 git clone <your-repo>
-cd CICIPIN
+cd Cicipin
 ```
 
 ### 2. Setup Python Virtual Environment
@@ -94,7 +94,7 @@ git push origin main
 
 ## Struktur Project
 ```
-CICIPIN/
+Cicipin/
 ├── api/
 │   └── index.py          # Vercel handler
 ├── static/
