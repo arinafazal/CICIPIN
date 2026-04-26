@@ -14,14 +14,13 @@
     <header>
         <div class="header-inner">
             <a href="{{ url_for('index') }}" class="logo">
-                <div class="logo-mark">C</div>
+                <div class="logo-mark">
+                    <img src="{{ url_for('static', filename='favicon.jpg') }}" alt="Cicipin" />
+                </div>
                 <div class="logo-text">Cicipin</div>
             </a>
             <div class="nav-links">
                 <a href="{{ url_for('index') }}" class="nav-link">Beranda</a>
-                {% if is_authenticated %}
-                <a href="{{ url_for('wishlist') }}" class="nav-link">To-Go List</a>
-                {% endif %}
             </div>
         </div>
     </header>

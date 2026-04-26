@@ -55,7 +55,9 @@ a {
     position: fixed;
     top: 16px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-10px);
+    opacity: 0;
+    pointer-events: none;
     z-index: 60;
     min-width: 280px;
     max-width: 520px;
@@ -69,6 +71,13 @@ a {
     background: rgba(15, 23, 42, 0.92);
     color: #fff;
     font-weight: 600;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.popup.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
 }
 
 .popup.success {
@@ -126,7 +135,6 @@ header {
     font-weight: 700;
     font-size: 0.98rem;
     letter-spacing: -0.02em;
-    text-transform: uppercase;
 }
 
 .user-menu {
@@ -165,15 +173,23 @@ header {
 }
 
 .btn-secondary {
-    background: var(--surface);
+    background: transparent;
     border: 1px solid var(--border);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     padding: 12px 22px;
 }
 
 .btn-secondary:hover {
+    background: rgba(37, 99, 235, 0.12);
     border-color: var(--primary);
     color: var(--primary);
+}
+
+.btn-secondary:active,
+.btn-secondary.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
 }
 
 .btn-danger {
@@ -619,6 +635,7 @@ main {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    justify-content: center;
 }
 
 .category-pill {
@@ -1078,11 +1095,11 @@ main {
 .form-container,
 .auth-container {
     width: 100%;
-    min-height: calc(100vh - 92px);
+    min-height: calc(100vh - 72px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 24px;
+    padding: 22px 14px;
     background: var(--bg);
 }
 
@@ -1090,19 +1107,25 @@ main {
 .auth-card,
 .form-card {
     width: 100%;
-    max-width: 520px;
+    max-width: 420px;
     background: var(--surface);
-    border-radius: 36px;
+    border-radius: 28px;
     border: 1px solid var(--border);
-    padding: 36px 38px;
+    padding: 22px 24px;
     box-shadow: var(--shadow);
 }
 
 .form-section h2,
 .auth-card h1,
 .form-card h3 {
-    font-size: 2rem;
-    margin-bottom: 14px;
+    font-size: 1.75rem;
+    margin-bottom: 10px;
+}
+
+.auth-card h1,
+.auth-card .auth-tagline,
+.auth-card .auth-link {
+    text-align: center;
 }
 
 .auth-card .logo-stack {
@@ -1123,6 +1146,10 @@ main {
     justify-content: center;
 }
 
+.form-group {
+    margin-bottom: 14px;
+}
+
 .form-group label,
 .auth-card label {
     display: block;
@@ -1138,9 +1165,9 @@ input[type='number'],
 select,
 textarea {
     width: 100%;
-    border-radius: 16px;
+    border-radius: 14px;
     border: 1px solid var(--border);
-    padding: 14px 16px;
+    padding: 12px 14px;
     background: var(--surface);
     color: var(--text-primary);
     outline: none;
@@ -1163,7 +1190,7 @@ textarea:focus {
 
 .auth-link,
 .auth-action {
-    margin-top: 24px;
+    margin-top: 16px;
     font-size: 0.95rem;
 }
 
@@ -1202,21 +1229,27 @@ textarea:focus {
 .form-card button,
 .form-section .btn {
     width: 100%;
-    padding: 14px 16px;
+    min-height: 54px;
+    padding: 0 24px;
     border: none;
-    border-radius: 16px;
+    border-radius: 999px;
     background: var(--primary);
     color: white;
     font-weight: 700;
     cursor: pointer;
+    margin-top: 14px;
     transition: transform 0.2s ease, background 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .register-btn {
     width: 100%;
-    padding: 14px 16px;
+    min-height: 54px;
+    padding: 0 24px;
     border: none;
-    border-radius: 16px;
+    border-radius: 999px;
     background: #9CA3AF;
     color: white;
     font-weight: 700;

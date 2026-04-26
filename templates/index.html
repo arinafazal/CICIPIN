@@ -20,7 +20,6 @@
             </a>
 
             <nav class="nav-links">
-                <a href="{{ url_for('index') }}" class="nav-link active">Beranda</a>
                 {% if is_authenticated %}
                 <span class="user-name">Hi, {{ username }}</span>
                 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Keluar</a>
@@ -54,14 +53,6 @@
                         value="{{ request.args.get('category', '') }}">
                     <button type="submit" class="btn btn-primary">Cari</button>
                 </form>
-
-                <div class="hero-tag-list">
-                    <a href="{{ url_for('index', category='Nasi Padang') }}" class="tag-chip">Nasi Padang</a>
-                    <a href="{{ url_for('index', category='Bakmi') }}" class="tag-chip">Bakmi</a>
-                    <a href="{{ url_for('index', category='Kafe') }}" class="tag-chip">Kafe</a>
-                    <a href="{{ url_for('index', category='Pizza') }}" class="tag-chip">Pizza</a>
-                    <a href="{{ url_for('index', category='Seafood') }}" class="tag-chip">Seafood</a>
-                </div>
             </div>
 
             <div class="hero-stats-row">
@@ -98,6 +89,9 @@
                     class="category-pill {% if request.args.get('category') == 'Kafe' %}active{% endif %}">Kafe</a>
                 <a href="{{ url_for('index', category='Street Food') }}"
                     class="category-pill {% if request.args.get('category') == 'Street Food' %}active{% endif %}">Street Food</a>
+                {% if is_authenticated %}
+                <a href="{{ url_for('wishlist') }}" class="category-pill">To-Go List</a>
+                {% endif %}
             </div>
 
             <div class="filter-tools">
@@ -164,6 +158,9 @@
                             {% if restaurant.get('price_range') %}
                             <span class="price-tag">Rp {{ restaurant.get('price_range') }}</span>
                             {% endif %}
+                        </div>
+                        <div class="card-buttons">
+                            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Lihat Detail</a>
                         </div>
                     </div>
                 </div>

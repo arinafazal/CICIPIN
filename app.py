@@ -218,6 +218,9 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None, sort_b
 @app.route('/')
 def index():
 
+    if "user_id" not in session:
+        return redirect(url_for('login'))
+
     category = request.args.get("category")
 
     min_rating = request.args.get("min_rating")
