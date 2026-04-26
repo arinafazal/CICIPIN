@@ -59,11 +59,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phone">Nomor HP (opsional)</label>
-                    <input type="text" id="phone" name="phone" placeholder="+62 8xx xxxx xxxx">
-                </div>
-
-                <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" placeholder="kucing123" required>
                 </div>
@@ -73,18 +68,10 @@
                     <input type="password" id="password" name="password" placeholder="Buat password kuat" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="confirm_password">Konfirmasi Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Ulangi password Anda" required>
-                </div>
-
-                <p class="form-note">Saya menyetujui Syarat & Ketentuan dan Kebijakan Privasi Cicipin.</p>
-
                 <button type="submit" class="register-btn">Buat Akun</button>
             </form>
 
             <p class="auth-link">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk di sini</a></p>
-            <p class="auth-security">Data Anda aman — enkripsi SSL 256-bit</p>
         </div>
     </div>
 
