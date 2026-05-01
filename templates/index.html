@@ -164,8 +164,8 @@
                         </div>
                         {% if is_admin %}
                         <div class="card-buttons card-admin-buttons">
-                            <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-primary">✏️ Edit</a>
-                            <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus restoran ini?');">🗑️ Hapus</a>
+                            <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus restoran ini?');">Hapus</a>
                         </div>
                         {% endif %}
                     </div>
@@ -183,9 +183,8 @@
 
         {% if username == 'admin' %}
         <section class="section">
-            <div class="form-section" style="text-align:center;">
-                <a href="{{ url_for('add_restaurant') }}" class="btn btn-primary"
-                    style="max-width:240px;margin:0 auto;">+ Tambah Restoran</a>
+            <div class="form-section admin-button-section">
+                <a href="{{ url_for('add_restaurant') }}" class="btn btn-primary">+ Tambah Restoran</a>
             </div>
         </section>
         {% endif %}
