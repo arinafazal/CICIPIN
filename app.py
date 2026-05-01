@@ -253,7 +253,8 @@ def index():
         username=username,
         saved_restaurant_ids=saved_restaurant_ids,
         sort_by=sort_by,
-        is_authenticated=is_authenticated
+        is_authenticated=is_authenticated,
+        is_admin=is_admin()
     )
 
 

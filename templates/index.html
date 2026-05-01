@@ -160,8 +160,14 @@
                             {% endif %}
                         </div>
                         <div class="card-buttons">
-                            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary">Lihat Detail</a>
+                            <a href="{{ url_for('restaurant_detail', restaurant_id=restaurant['_id']) }}" class="btn btn-secondary btn-detail">Lihat Detail</a>
                         </div>
+                        {% if is_admin %}
+                        <div class="card-buttons card-admin-buttons">
+                            <a href="{{ url_for('edit_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-primary">✏️ Edit</a>
+                            <a href="{{ url_for('delete_restaurant', restaurant_id=restaurant['_id']) }}" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus restoran ini?');">🗑️ Hapus</a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

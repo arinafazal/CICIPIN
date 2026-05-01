@@ -909,6 +909,19 @@ main {
     width: auto;
 }
 
+.btn-detail {
+    flex: 1 !important;
+}
+
+.card-admin-buttons {
+    padding: 0 24px 24px;
+    border-top: none;
+}
+
+.card-admin-buttons .btn {
+    flex: 1;
+}
+
 .wishlist-btn {
     position: absolute;
     top: 18px;
