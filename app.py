@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 from datetime import datetime
 import math
+import re
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -176,7 +177,14 @@ def search_restaurants(search_term=None, min_rating=None, max_price=None, sort_b
     query = {}
 
     if search_term and search_term.lower() != "semua":
-        query['category'] = search_term
+        regex = re.compile(re.escape(search_term), re.IGNORECASE)
+        query = {
+            "$or": [
+                {"name": regex},
+                {"category": regex},
+                {"address": regex}
+            ]
+        }
 
     restaurants = db.restaurants.find(query)
 
