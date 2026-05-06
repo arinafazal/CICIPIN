@@ -42,6 +42,30 @@
                 {% if restaurant.get('opening_hours') %}
                 <p class="about-text"><strong>Jam Buka:</strong> {{ restaurant['opening_hours'] }}</p>
                 {% endif %}
+
+                {% if restaurant.average_rating is not none %}
+                <div class="rating-summary">
+                    <div class="rating-overall">
+                        <div class="rating-score">{{ restaurant.average_rating }}</div>
+                        <div>
+                            <div class="rating-label">Overall Rating</div>
+                            <div class="rating-total">{{ total_reviews }} ulasan</div>
+                        </div>
+                    </div>
+                    <div class="rating-breakdown">
+                        {% for star in range(5,0,-1) %}
+                        <div class="rating-row">
+                            <span class="rating-star-row">{{ star }} <span class="star-icon">★</span></span>
+                            <div class="rating-bar">
+                                <span class="rating-fill" style="width: {{ (rating_counts[star] / total_reviews * 100) if total_reviews else 0 }}%;"></span>
+                            </div>
+                            <span class="rating-count-value">{{ rating_counts[star] }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if restaurant.get('latitude') and restaurant.get('longitude') %}
                 <div id="map" class="map-frame" data-lat="{{ restaurant.latitude }}" data-lng="{{ restaurant.longitude }}"></div>
                 {% endif %}
@@ -50,7 +74,7 @@
 
         <div class="detail-container">
             <div class="detail-section">
-                <h2><span class="category-icon">💬</span> Ulasan</h2>
+                <h2><span class="category-icon"></span> Ulasan</h2>
                 {% if restaurant['reviews'] %}
                 {% for review in restaurant['reviews'] %}
                 <div class="review-item">
