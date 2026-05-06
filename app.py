@@ -29,6 +29,9 @@ UPLOAD_FOLDER = "/tmp"
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-cicipin-2024')
 
 
+
+
+
 def process_image(path, size=(600,400)):
     try:
         img = Image.open(path)
@@ -69,12 +72,13 @@ def login():
             flash('Cannot log in: database unreachable', 'danger')
             return render_template('login.html')
 
-        user = db.users.find_one({"username": username})
+        user = db.users.find_one({
+            "username": username
+        })
 
         if user and check_password_hash(user['password'], password):
-
             session['user_id'] = str(user['_id'])
-            session['username'] = username
+            session['username'] = user.get('username')
 
             flash('You have successfully logged in', 'success')
             return redirect(url_for('index'))
@@ -97,18 +101,30 @@ def register():
             flash('Cannot register: database unreachable', 'danger')
             return redirect(url_for('register'))
 
-        username = request.form['username']
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        username = request.form['username'].strip()
         password = request.form['password']
 
         hashed_password = generate_password_hash(password)
 
-        existing_user = db.users.find_one({"username": username})
+        existing_user = db.users.find_one({
+            "$or": [
+                {"username": username},
+                {"email": email}
+            ]
+        })
 
         if existing_user:
-            flash("Username already exists", "danger")
+            if existing_user.get('username') == username:
+                flash("Username already exists", "danger")
+            else:
+                flash("Email already registered", "danger")
             return redirect(url_for('register'))
 
         db.users.insert_one({
+            "full_name": full_name,
+            "email": email,
             "username": username,
             "password": hashed_password
         })
@@ -117,6 +133,9 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
+
+
 
 def is_admin():
     return session.get("username") == "admin"
@@ -249,6 +268,38 @@ def index():
     username = None
     is_authenticated = False
 
+    restaurant_count = 0
+    total_reviews = 0
+    city_count = 0
+
+    if db is not None:
+        try:
+            restaurant_count = db.restaurants.count_documents({})
+
+            reviews_agg = list(db.restaurants.aggregate([
+                {"$project": {"count": {"$size": {"$ifNull": ["$reviews", []]}}}},
+                {"$group": {"_id": None, "total": {"$sum": "$count"}}}
+            ]))
+            total_reviews = reviews_agg[0]["total"] if reviews_agg else 0
+
+            city_agg = list(db.restaurants.aggregate([
+                {"$match": {"address": {"$exists": True, "$ne": ""}}},
+                {"$project": {"address_parts": {"$split": ["$address", ","]}, "address_len": {"$size": {"$split": ["$address", ","]}}}},
+                {"$project": {"city": {
+                    "$cond": [
+                        {"$gte": ["$address_len", 2]},
+                        {"$trim": {"input": {"$arrayElemAt": [{"$split": ["$address", ","]}, -2]}}},
+                        {"$trim": {"input": {"$arrayElemAt": [{"$split": ["$address", ","]}, -1]}}}
+                    ]
+                }}},
+                {"$group": {"_id": "$city"}},
+                {"$count": "city_count"}
+            ]))
+            city_count = city_agg[0]["city_count"] if city_agg else 0
+        except Exception as exc:
+            app.logger.warning("Failed to compute dashboard stats: %s", exc)
+
+
     if "user_id" in session:
         is_authenticated = True
         username = session.get("username")
@@ -262,7 +313,12 @@ def index():
         saved_restaurant_ids=saved_restaurant_ids,
         sort_by=sort_by,
         is_authenticated=is_authenticated,
-        is_admin=is_admin()
+        is_admin=is_admin(),
+        dashboard_stats={
+            'restaurant_count': restaurant_count,
+            'total_reviews': total_reviews,
+            'city_count': city_count
+        }
     )
 
 
@@ -289,7 +345,6 @@ def add_restaurant():
             price_range = request.form.get('price_range')
 
             image_url = None
-
             image = request.files.get("image")
 
             if image and image.filename != "":
@@ -343,15 +398,31 @@ def edit_restaurant(restaurant_id):
         category = request.form['category']
         address = request.form['address']
         opening_hours = request.form.get('opening_hours')
+        latitude = float(request.form['latitude']) if request.form.get('latitude') else None
+        longitude = float(request.form['longitude']) if request.form.get('longitude') else None
+        price_range = request.form['price_range']
+
+        update_fields = {
+            "name": name,
+            "category": category,
+            "address": address,
+            "opening_hours": opening_hours,
+            "latitude": latitude,
+            "longitude": longitude,
+            "price_range": price_range
+        }
+
+        image = request.files.get("image")
+        if image and image.filename != "":
+            try:
+                upload_result = cloudinary.uploader.upload(image)
+                update_fields["image_url"] = upload_result["secure_url"]
+            except Exception as e:
+                app.logger.warning("CLOUDINARY ERROR DURING EDIT: %s", e)
 
         db.restaurants.update_one(
             {"_id": ObjectId(restaurant_id)},
-            {"$set": {
-                "name": name,
-                "category": category,
-                "address": address,
-                "opening_hours": opening_hours
-            }}
+            {"$set": update_fields}
         )
 
         flash("Restaurant updated successfully!", "success")
@@ -447,9 +518,21 @@ def restaurant_detail(restaurant_id):
         compute_average_rating(restaurant)
         compute_open_status(restaurant)
 
+        rating_counts = {stars: 0 for stars in range(1, 6)}
+        total_reviews = len(restaurant.get('reviews', []))
+        for review in restaurant.get('reviews', []):
+            try:
+                star_value = int(review.get('rating', 0))
+            except (TypeError, ValueError):
+                star_value = 0
+            if 1 <= star_value <= 5:
+                rating_counts[star_value] += 1
+
         return render_template(
             'restaurant_detail.html',
             restaurant=restaurant,
+            rating_counts=rating_counts,
+            total_reviews=total_reviews,
             username=session.get('username'),
             is_authenticated="user_id" in session
         )
